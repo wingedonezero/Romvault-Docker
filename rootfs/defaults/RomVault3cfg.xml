@@ -27,8 +27,11 @@
       <DirPath>/roms/ToSort</DirPath>
     </DirMapping>
   </DirMappings>
+  <IgnoreFiles />
+  <EInfo />
   <chkBoxShowComplete>true</chkBoxShowComplete>
   <chkBoxShowPartial>true</chkBoxShowPartial>
   <chkBoxShowFixes>true</chkBoxShowFixes>
   <chkBoxShowMIA>true</chkBoxShowMIA>
+  <chkBoxShowMerged>false</chkBoxShowMerged>
 </Settings>
