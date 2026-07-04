@@ -552,9 +552,15 @@ namespace ROMVault
                 _clickedTree.Tree.SetChecked(RvTreeRow.TreeSelect.Selected, true);
             }
             if (_clickedTree.ToSortStatusIs(RvFile.ToSortDirType.ToSortPrimary))
+            {
+                Program.ShowDialog("Primary Directory Cannot be File Only.", "RomVault");
                 return;
+            }
             if (_clickedTree.ToSortStatusIs(RvFile.ToSortDirType.ToSortCache))
+            {
+                Program.ShowDialog("Cache Directory Cannot be File Only.", "RomVault");
                 return;
+            }
 
             _clickedTree.ToSortStatusSet(RvFile.ToSortDirType.ToSortFileOnly);
 
@@ -1140,6 +1146,70 @@ namespace ROMVault
                 Process.Start(new ProcessStartInfo(path) { UseShellExecute = true });
             }
             catch { }
+        }
+
+        protected override void OnKeyDown(KeyEventArgs e)
+        {
+            // Route the F-key shortcuts shown in the menus (WinForms wires these
+            // through the menu strip; Avalonia InputGesture is display-only).
+            bool shift = e.KeyModifiers.HasFlag(KeyModifiers.Shift);
+            bool ctrl = e.KeyModifiers.HasFlag(KeyModifiers.Control);
+
+            // While working, WinForms disables every menu except Help.
+            if (_working && e.Key != Key.F1 && e.Key != Key.F12)
+            {
+                base.OnKeyDown(e);
+                return;
+            }
+
+            switch (e.Key)
+            {
+                case Key.F1:
+                    colorKeyToolStripMenuItem_Click(this, null);
+                    e.Handled = true;
+                    break;
+                case Key.F5:
+                    if (shift) updateAllDATsToolStripMenuItem_Click(this, null);
+                    else updateNewDATsToolStripMenuItem_Click(this, null);
+                    e.Handled = true;
+                    break;
+                case Key.F6:
+                    if (ctrl) TsmScanLevel3Click(this, null);
+                    else if (shift) TsmScanLevel1Click(this, null);
+                    else TsmScanLevel2Click(this, null);
+                    e.Handled = true;
+                    break;
+                case Key.F7:
+                    TsmFindFixesClick(this, null);
+                    e.Handled = true;
+                    break;
+                case Key.F8:
+                    FixFilesToolStripMenuItemClick(this, null);
+                    e.Handled = true;
+                    break;
+                case Key.F9:
+                    if (ctrl) fixReportToolStripMenuItem_Click(this, null);
+                    else if (shift) fullReportToolStripMenuItem_Click(this, null);
+                    else fixDatReportToolStripMenuItem_Click(this, null);
+                    e.Handled = true;
+                    break;
+                case Key.F10:
+                    if (ctrl) directoryMappingsToolStripMenuItem_Click(this, null);
+                    else if (shift) DirectorySettingsToolStripMenuItem_Click(this, null);
+                    else RomVaultSettingsToolStripMenuItem_Click(this, null);
+                    e.Handled = true;
+                    break;
+                case Key.F11:
+                    AddToSortToolStripMenuItem_Click(this, null);
+                    e.Handled = true;
+                    break;
+                case Key.F12:
+                    AboutRomVaultToolStripMenuItemClick(this, null);
+                    e.Handled = true;
+                    break;
+            }
+
+            base.OnKeyDown(e);
         }
 
         protected override void OnClosing(WindowClosingEventArgs e)
