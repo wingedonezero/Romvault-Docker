@@ -4,6 +4,19 @@
   <DatRoot>DatRoot</DatRoot>
   <CacheFile>RomVault3_3.Cache</CacheFile>
   <FixLevel>Level2</FixLevel>
+  <DatRules>
+    <DatRule>
+      <DirKey>RomVault</DirKey>
+      <Compression>Zip</Compression>
+      <CompressionOverrideDAT>false</CompressionOverrideDAT>
+      <Merge>None</Merge>
+      <HeaderType>Optional</HeaderType>
+      <MergeOverrideDAT>false</MergeOverrideDAT>
+      <SingleArchive>false</SingleArchive>
+      <MultiDATDirOverride>false</MultiDATDirOverride>
+      <IgnoreFiles />
+    </DatRule>
+  </DatRules>
   <DirMappings>
     <DirMapping>
       <DirKey>RomVault</DirKey>
@@ -14,8 +27,11 @@
       <DirPath>/roms/ToSort</DirPath>
     </DirMapping>
   </DirMappings>
+  <IgnoreFiles />
+  <EInfo />
   <chkBoxShowComplete>true</chkBoxShowComplete>
   <chkBoxShowPartial>true</chkBoxShowPartial>
   <chkBoxShowFixes>true</chkBoxShowFixes>
   <chkBoxShowMIA>true</chkBoxShowMIA>
+  <chkBoxShowMerged>false</chkBoxShowMerged>
 </Settings>
