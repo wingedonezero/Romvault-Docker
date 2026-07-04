@@ -33,4 +33,7 @@
   <Config Name="PUID" Target="PUID" Default="99" Mode="" Description="User ID (Unraid = 99)" Type="Variable" Display="always" Required="true" Mask="false">99</Config>
   <Config Name="PGID" Target="PGID" Default="100" Mode="" Description="Group ID (Unraid = 100)" Type="Variable" Display="always" Required="true" Mask="false">100</Config>
   <Config Name="TZ" Target="TZ" Default="UTC" Mode="" Description="Timezone" Type="Variable" Display="always" Required="false" Mask="false">America/New_York</Config>
+  <Config Name="UMASK" Target="UMASK" Default="022" Mode="" Description="File permission mask for files the app creates" Type="Variable" Display="advanced" Required="false" Mask="false">022</Config>
+  <Config Name="WebUI Username (optional)" Target="CUSTOM_USER" Default="" Mode="" Description="Set together with the password to require a login on the web UI. Leave empty for no auth (LAN use)." Type="Variable" Display="advanced" Required="false" Mask="false"/>
+  <Config Name="WebUI Password (optional)" Target="PASSWORD" Default="" Mode="" Description="Set together with the username to require a login on the web UI. Leave empty for no auth (LAN use)." Type="Variable" Display="advanced" Required="false" Mask="true"/>
 </Container>
