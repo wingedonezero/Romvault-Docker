@@ -1,0 +1,12 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="ROMVault.FrmKey"
+        Title="Color Key to ROM Status"
+        Width="640" Height="600"
+        MaxHeight="700"
+        WindowStartupLocation="CenterOwner"
+        CanResize="True">
+    <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+        <StackPanel x:Name="mainPanel" Margin="6"/>
+    </ScrollViewer>
+</Window>

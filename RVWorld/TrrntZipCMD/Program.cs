@@ -1,0 +1,242 @@
+﻿using Compress;
+using System;
+using System.IO;
+using System.Reflection;
+using TrrntZip;
+using Directory = RVIO.Directory;
+using DirectoryInfo = RVIO.DirectoryInfo;
+using FileInfo = RVIO.FileInfo;
+using Path = RVIO.Path;
+
+
+namespace TrrntZipCMD
+{
+    internal class Program
+    {
+        private static bool _noRecursion;
+        private static bool _guiLaunch;
+
+        private static TorrentZip torrentZip;
+
+        private static StreamWriter logStream = null;
+
+        private static void Main(string[] args)
+        {
+            try
+            {
+
+                if (args.Length == 0)
+                {
+                    Console.WriteLine("");
+                    Console.WriteLine("trrntzip: missing path");
+                    Console.WriteLine("Usage: trrntzip [OPTIONS] [PATH/ZIP FILES]");
+                    return;
+                }
+
+                Settings settings = new Settings();
+
+                for (int i = 0; i < args.Length; i++)
+                {
+                    string arg = args[i];
+                    if (arg.Length < 2)
+                    {
+                        continue;
+                    }
+                    if (arg.Substring(0, 1) != "-")
+                    {
+                        continue;
+                    }
+
+
+                    switch (arg.Substring(1, 1))
+                    {
+                        case "?":
+                            Console.WriteLine($"TorrentZip.Net v{Assembly.GetExecutingAssembly().GetName().Version.ToString(3)} - Powered by RomVault");
+                            Console.WriteLine("");
+                            Console.WriteLine("Copyright (C) 2026 GordonJ");
+                            Console.WriteLine("Homepage : http://www.romvault.com/trrntzip");
+                            Console.WriteLine("");
+                            Console.WriteLine("Usage: trrntzip [OPTIONS] [PATH/ZIP FILE]");
+                            Console.WriteLine("");
+                            Console.WriteLine("Options:");
+                            Console.WriteLine("");
+                            Console.WriteLine("-? : show this help");
+                            Console.WriteLine("-o : Set Output Archive Structure");
+                            Console.WriteLine("     ZT  = Zip-Trrnt");
+                            Console.WriteLine("     ZZ  = Zip-ZSTD");
+                            Console.WriteLine("     7SL = 7Zip-Solid-LZMA");
+                            Console.WriteLine("     7NL = 7Zip-NonSolid-LZMA");
+                            Console.WriteLine("     7SZ = 7Zip-Solid-ZSTD");
+                            Console.WriteLine("     7NZ = 7Zip-NonSolid-ZSTD");
+                            Console.WriteLine("-s : prevent sub-directory recursion");
+                            Console.WriteLine("-f : force re-zip");
+                            Console.WriteLine("-c : Check files only do not repair");
+                            Console.WriteLine("-l : verbose logging");
+                            Console.WriteLine("-v : show version");
+                            Console.WriteLine("-g : pause when finished");
+                            Console.ReadLine();
+                            return;
+                        case "o":
+                            string nextArt = args[i++];
+                            switch (nextArt)
+                            {
+                                case "ZT":
+                                    settings.OutZip = ZipStructure.ZipTrrnt;
+                                    break;
+                                case "ZZ":
+                                    settings.OutZip = ZipStructure.ZipZSTD;
+                                    break;
+                                case "7SL":
+                                    settings.OutZip = ZipStructure.SevenZipSLZMA;
+                                    break;
+                                case "7NL":
+                                    settings.OutZip = ZipStructure.SevenZipNLZMA;
+                                    break;
+                                case "7SZ":
+                                    settings.OutZip = ZipStructure.SevenZipSZSTD;
+                                    break;
+                                case "7NZ":
+                                    settings.OutZip = ZipStructure.SevenZipNZSTD;
+                                    break;
+                                default:
+                                    Console.WriteLine("Unknown Output Archive Structure : " + nextArt);
+                                    Console.WriteLine("Valid Structures are : ZT, ZZ, 7SL, 7NL, 7SZ, 7NZ");
+                                    return;
+                            }
+                            break;
+                        case "s":
+                            _noRecursion = true;
+                            break;
+                        case "f":
+                            settings.ForceReZip = true;
+                            break;
+                        case "c":
+                            settings.CheckOnly = true;
+                            break;
+                        case "l":
+                            settings.VerboseLogging = true;
+                            string logtime = DateTime.Now.ToString("yyyy-MM-dd-HHmmss");
+                            logStream = new StreamWriter($"outlog-{logtime}.txt");
+                            break;
+                        case "v":
+                            Console.WriteLine("TorrentZip v{0}", Assembly.GetExecutingAssembly().GetName().Version);
+                            return;
+                        case "g":
+                            _guiLaunch = true;
+                            break;
+                    }
+                }
+
+                torrentZip = new TorrentZip()
+                {
+                    StatusCallBack = StatusCallBack,
+                    StatusLogCallBack = StatusLogCallBack,
+                    settings = settings
+                };
+
+                foreach (string tArg in args)
+                {
+                    string arg = tArg;
+                    if (arg.Length < 2)
+                    {
+                        continue;
+                    }
+                    if (arg.Substring(0, 1) == "-")
+                    {
+                        continue;
+                    }
+
+                    if (arg.Length > 2 && arg.Substring(0, 2) == ".\\")
+                        arg = arg.Substring(2);
+                    // first check if arg is a directory
+                    if (Directory.Exists(arg))
+                    {
+                        ProcessDir(arg);
+                        continue;
+                    }
+
+                    // now check if arg is a directory/filename with possible wild cards.
+
+                    string dir = Path.GetDirectoryName(arg);
+                    if (string.IsNullOrEmpty(dir))
+                    {
+                        dir = Environment.CurrentDirectory;
+                    }
+
+                    string filename = Path.GetFileName(arg);
+
+                    DirectoryInfo dirInfo = new DirectoryInfo(dir);
+                    FileInfo[] fileInfo = dirInfo.GetFiles(filename);
+                    foreach (FileInfo file in fileInfo)
+                    {
+                        string ext = Path.GetExtension(file.FullName).ToLower();
+                        if (!string.IsNullOrEmpty(ext) && ((ext == ".zip") || (ext == ".7z")))
+                        {
+                            torrentZip.Process(new FileInfo(file.FullName));
+                        }
+                    }
+                }
+
+                logStream?.Flush();
+                logStream?.Close();
+                logStream?.Dispose();
+                logStream = null;
+
+                if (_guiLaunch)
+                {
+                    Console.WriteLine("Complete.");
+                    Console.ReadLine();
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("{0} Exception caught.", e);
+                logStream?.WriteLine("{0} Exception caught.", e);
+                logStream?.Flush();
+                logStream?.Close();
+                logStream?.Dispose();
+                logStream = null;
+            }
+        }
+
+        private static void ProcessDir(string dirName)
+        {
+            Console.WriteLine("Checking Dir : " + dirName);
+
+            DirectoryInfo di = new DirectoryInfo(dirName);
+            FileInfo[] fi = di.GetFiles();
+            foreach (FileInfo f in fi)
+            {
+                string filename = f.FullName;
+                string ext = Path.GetExtension(filename)?.ToLower();
+                if (!string.IsNullOrEmpty(ext) && (ext == ".zip" || ext == ".7z"))
+                {
+                    torrentZip.Process(new FileInfo(filename));
+                }
+            }
+
+            if (_noRecursion)
+            {
+                return;
+            }
+
+            string[] directories = System.IO.Directory.GetDirectories(dirName);
+            foreach (string dir in directories)
+            {
+                ProcessDir(dir);
+            }
+        }
+
+
+        private static void StatusCallBack(int processID, int percent)
+        {
+            Console.Write($"{percent,3}%");
+        }
+
+        private static void StatusLogCallBack(int processId, string log)
+        {
+            logStream?.WriteLine(log);
+            Console.WriteLine(log);
+        }
+    }
+}

@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <RootNamespace>TrrntZipUIAvalonia</RootNamespace>
+    <AssemblyName>TrrntZipUIAvalonia</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Avalonia" Version="11.3.12" />
+    <PackageReference Include="Avalonia.Controls.DataGrid" Version="11.3.12" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <AvaloniaResource Include="Assets\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Compress\Compress.csproj" />
+    <ProjectReference Include="..\RVIO\RVIO.csproj" />
+    <ProjectReference Include="..\TrrntZip\TrrntZip.csproj" />
+    <ProjectReference Include="..\DarkAvalonia\DarkAvalonia.csproj" />
+  </ItemGroup>
+
+</Project>

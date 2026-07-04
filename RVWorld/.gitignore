@@ -1,0 +1,13 @@
+################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+obj/
+bin/
+/packages
+/.vs
+*.user
+/.idea/
+*/.vs
+/ROMVault/.vs/RomVault.csproj.dtbcache.json
+/publish-*/
+.claude

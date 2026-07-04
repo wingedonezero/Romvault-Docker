@@ -1,0 +1,6 @@
+#!/bin/bash
+# Launched by the KasmVNC desktop session. Working directory must be /config:
+# RomVault resolves config/RomVault3cfg.xml, the scan cache, screenpos.xml and
+# the default DatRoot relative to the CWD.
+cd /config
+exec /app/ROMVault37

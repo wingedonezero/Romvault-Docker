@@ -1,0 +1,40 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="ROMVault.FrmHelpAbout"
+        Title="FrmHelpAbout"
+        Width="471" Height="172"
+        WindowStartupLocation="CenterOwner"
+        CanResize="False"
+        ShowInTaskbar="False"
+>
+    <Grid Margin="12">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Spacer for background image area -->
+        <Panel Grid.Row="0"/>
+
+        <TextBlock x:Name="lblVersion" Grid.Row="1"
+                   FontSize="14" FontWeight="Bold"
+                   HorizontalAlignment="Center"
+                   Margin="0,0,0,8"/>
+
+        <Grid Grid.Row="2" ColumnDefinitions="Auto,*,Auto">
+            <Button Grid.Column="0" Content="Donate via PayPal"
+                    Click="pictureBox2_Click" Cursor="Hand"
+                    HorizontalContentAlignment="Center"/>
+            <Panel Grid.Column="1"/>
+            <TextBlock Grid.Column="2"
+                       Text="http://www.romvault.com/"
+                       FontSize="14" FontWeight="Bold"
+                       Foreground="Blue"
+                       TextDecorations="Underline"
+                       Cursor="Hand"
+                       Tapped="label1_Click"
+                       VerticalAlignment="Center"/>
+        </Grid>
+    </Grid>
+</Window>

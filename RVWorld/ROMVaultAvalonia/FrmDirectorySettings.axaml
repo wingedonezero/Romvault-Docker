@@ -1,0 +1,280 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="ROMVault.FrmDirectorySettings"
+        Title="Set DAT Rules"
+        Width="730" Height="760"
+        MinWidth="700" MinHeight="500"
+        WindowStartupLocation="CenterOwner"
+        ShowInTaskbar="False"
+        FontSize="12">
+
+    <!-- Override Fluent theme's large TabItem font -->
+    <Window.Styles>
+        <Style Selector="TabItem">
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="MinHeight" Value="0"/>
+        </Style>
+    </Window.Styles>
+
+    <Grid Margin="12" RowDefinitions="Auto,Auto,Auto,*,Auto">
+
+        <!-- Row 0: Rule Path -->
+        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,8">
+            <TextBlock Text="Rule Path:"
+                       VerticalAlignment="Center"
+                       Margin="0,0,8,0"/>
+            <Border BorderBrush="{DynamicResource SystemControlForegroundBaseMediumBrush}" BorderThickness="1"
+                    Background="{DynamicResource RvBgBrush0}" MinWidth="527" MinHeight="22">
+                <TextBlock x:Name="txtDATLocation" Text=""
+                           VerticalAlignment="Center"
+                           Margin="4,0"/>
+            </Border>
+        </StackPanel>
+
+        <!-- Row 1: TabControl with settings -->
+        <TabControl Grid.Row="1" x:Name="tabControl1" Margin="0,0,0,4">
+
+            <!-- Tab 1: Directory/Merge Rules -->
+            <TabItem Header="Directory/Merge Rules">
+                <StackPanel Margin="6">
+
+                    <!-- GroupBox1: Multi DAT Directory Setting -->
+                    <HeaderedContentControl Header="Multi DAT Directory Setting"
+                                                                 Margin="0,0,0,6">
+                        <HeaderedContentControl.Styles>
+                            <Style Selector="HeaderedContentControl">
+                                <Setter Property="Template">
+                                    <ControlTemplate>
+                                        <Border BorderBrush="{DynamicResource SystemControlForegroundBaseMediumBrush}" BorderThickness="1" CornerRadius="3" Padding="8,4,8,8">
+                                            <StackPanel>
+                                                <TextBlock Text="{TemplateBinding Header}" FontWeight="Bold"
+                                                                                               Margin="0,0,0,4"/>
+                                                <ContentPresenter Content="{TemplateBinding Content}"/>
+                                            </StackPanel>
+                                        </Border>
+                                    </ControlTemplate>
+                                </Setter>
+                            </Style>
+                        </HeaderedContentControl.Styles>
+                        <CheckBox x:Name="chkMultiDatDirOverride"
+                                  Content="Don't auto add DAT directories"
+                                             ToolTip.Tip="If two or more DATs share a directory RomVault will automatically&#x0a;make a sub-directory for each DAT so that they do not conflict with each other.&#x0a;Checking this will stop sub-directories being automatically added."/>
+                    </HeaderedContentControl>
+
+                    <!-- GroupBox2: DAT Rule Settings -->
+                    <Border BorderBrush="{DynamicResource SystemControlForegroundBaseMediumBrush}" BorderThickness="1" CornerRadius="3" Padding="8,4,8,8">
+                        <StackPanel>
+                            <TextBlock Text="DAT Rule Settings" FontWeight="Bold"
+                                                       Margin="0,0,0,4"/>
+
+                            <!-- Row: Archive Type + Override + Filter -->
+                            <Grid ColumnDefinitions="Auto,140,Auto,*,Auto,110" Margin="0,2">
+                                <TextBlock Grid.Column="0" Text="Archive Type:"
+                                           VerticalAlignment="Center"
+                                                               Margin="0,0,6,0"/>
+                                <ComboBox Grid.Column="1" x:Name="cboFileType"
+                                          HorizontalAlignment="Stretch"/>
+                                <CheckBox Grid.Column="2" x:Name="chkFileTypeOverride"
+                                          Content="Override DAT"
+                                                             Margin="8,0,0,0"
+                                          ToolTip.Tip="Checking this will force the selected archive type to be used.&#x0a;If unchecked and if the DAT specifies an archive type the DATs archive type will override this setting."/>
+                                <TextBlock Grid.Column="3" Text="" />
+                                <TextBlock Grid.Column="4" Text="ROM/CHD Filter:"
+                                           VerticalAlignment="Center"
+                                                               Margin="0,0,6,0"/>
+                                <ComboBox Grid.Column="5" x:Name="cboFilterType"
+                                          HorizontalAlignment="Stretch"/>
+                            </Grid>
+
+                            <!-- Row: Compression Type + Convert + Header Type -->
+                            <Grid ColumnDefinitions="Auto,140,Auto,*,Auto,110" Margin="0,4">
+                                <TextBlock Grid.Column="0" Text="Compression Type:"
+                                           VerticalAlignment="Center"
+                                                               Margin="0,0,6,0"/>
+                                <ComboBox Grid.Column="1" x:Name="cboCompression"
+                                          HorizontalAlignment="Stretch"/>
+                                <CheckBox Grid.Column="2" x:Name="chkConvertWhenFixing"
+                                          Content="Convert when fixing"
+                                                             Margin="8,0,0,0"/>
+                                <TextBlock Grid.Column="3" Text="" />
+                                <TextBlock Grid.Column="4" Text="Header Type:"
+                                           VerticalAlignment="Center"
+                                                               Margin="0,0,6,0"/>
+                                <ComboBox Grid.Column="5" x:Name="cboHeaderType"
+                                          HorizontalAlignment="Stretch"/>
+                            </Grid>
+
+                            <!-- Row: Merge Type + Override -->
+                            <Grid ColumnDefinitions="Auto,140,Auto,*" Margin="0,4">
+                                <TextBlock Grid.Column="0" Text="Merge Type:"
+                                           VerticalAlignment="Center"
+                                                               Margin="0,0,6,0"/>
+                                <ComboBox Grid.Column="1" x:Name="cboMergeType"
+                                          HorizontalAlignment="Stretch"/>
+                                <CheckBox Grid.Column="2" x:Name="chkMergeTypeOverride"
+                                          Content="Override DAT"
+                                                             Margin="8,0,0,0"
+                                          ToolTip.Tip="Checking this will force the selected merge type to be used.&#x0a;If unchecked and if the DAT specifies a merge type the DATs merge type will override this setting."/>
+                            </Grid>
+
+                            <!-- Row: Single Archive + Dir Type -->
+                            <Grid ColumnDefinitions="Auto,*" Margin="0,4">
+                                <CheckBox Grid.Column="0" x:Name="chkSingleArchive"
+                                          Content="Single Archive"
+                                                             Margin="0,0,8,0"
+                                          ToolTip.Tip="Checking this will turn the DATs in these directories into single archives.&#x0a; These archives will contain an internal sub-directories for each set in the DATs.&#x0a;(Don't use this with 'File' archive type as it will do nothing useful.)"/>
+                                <ComboBox Grid.Column="1" x:Name="cboDirType"
+                                          HorizontalAlignment="Stretch"/>
+                            </Grid>
+
+                            <!-- Row: Use Description checkbox -->
+                            <CheckBox x:Name="chkUseDescription"
+                                      Content="Use description (instead of name) for auto added paths"
+                                                     Margin="0,4,0,0"
+                                      ToolTip.Tip="For the auto generated directories names &amp; single archive names.&#x0a;RomVault will use the 'name' in the header of the DAT,&#x0a;Checking this will switch to using the 'description' in the header.&#x0a;If there is no 'description' the 'name' tag will be used.&#x0a;If there is no 'name' tag, the DAT filename will be used."/>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </TabItem>
+
+            <!-- Tab 2: Advanced Options -->
+            <TabItem Header="Advanced Options">
+                <Border BorderBrush="{DynamicResource SystemControlForegroundBaseMediumBrush}" BorderThickness="1" CornerRadius="3"
+                        Padding="8,4,8,8" Margin="6">
+                    <StackPanel>
+                        <TextBlock Text="Advanced Options" FontWeight="Bold"
+                                               Margin="0,0,0,4"/>
+
+                        <Grid ColumnDefinitions="*,Auto,Auto">
+                            <StackPanel Grid.Column="0">
+                                <CheckBox x:Name="chkAddCategorySubDirs"
+                                          Content="Add Category Sub Directories"/>
+                                <CheckBox x:Name="chkUseIdForName"
+                                          Content="Use ID for Numbered DAT Names (No-Intro DATs)"
+                                                             Margin="0,6,0,0"/>
+                                <CheckBox x:Name="chkCompleteOnly"
+                                          Content="Only Keep Complete Sets"
+                                                             Margin="0,6,0,0"/>
+                            </StackPanel>
+
+                            <!-- Up/Down buttons -->
+                            <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="8,0">
+                                <Button x:Name="btnUp" Width="32" Height="35"
+                                        Margin="0,0,0,4"
+                                        Click="btnUp_Click"
+                                        ToolTip.Tip="Move Up">
+                                    <TextBlock Text="&#x25B2;" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Button>
+                                <Button x:Name="btnDown" Width="32" Height="35"
+                                        Click="btnDown_Click"
+                                        ToolTip.Tip="Move Down">
+                                    <TextBlock Text="&#x25BC;" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Button>
+                            </StackPanel>
+
+                            <!-- Category DataGrid -->
+                            <DataGrid Grid.Column="2" x:Name="dgCategories"
+                                      Width="160" Height="180"
+                                      IsReadOnly="True"
+                                      CanUserReorderColumns="False"
+                                      CanUserResizeColumns="False"
+                                      CanUserSortColumns="False"
+                                      HeadersVisibility="Column"
+                                      SelectionMode="Single"
+                                      GridLinesVisibility="All"
+                                      BorderBrush="{DynamicResource SystemControlForegroundBaseMediumBrush}" BorderThickness="1">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="Category Priority"
+                                                        Binding="{Binding}"
+                                                        Width="*"/>
+                                </DataGrid.Columns>
+                            </DataGrid>
+                        </Grid>
+                    </StackPanel>
+                </Border>
+            </TabItem>
+
+            <!-- Tab 3: Filename Exclude -->
+            <TabItem Header="Filename Exclude">
+                <StackPanel Margin="6">
+                    <TextBlock Text="Filenames not to remove from RomDir's"
+                               FontWeight="Bold"
+                                       Margin="0,0,0,6"/>
+                    <Grid ColumnDefinitions="*,Auto">
+                        <TextBox Grid.Column="0" x:Name="textBox1"
+                                 AcceptsReturn="True" TextWrapping="Wrap"
+                                 Height="160"
+                                 BorderBrush="{DynamicResource SystemControlForegroundBaseMediumBrush}" BorderThickness="1"
+                                 Background="{DynamicResource RvBgBrush0}"/>
+                        <TextBlock Grid.Column="1"
+                                   Text="One rule per line&#x0a;Basic rules support * and ? wildcards&#x0a;Regex rules must start with &quot;regex:&quot;"
+                                               Margin="12,0,0,0"
+                                   TextWrapping="Wrap"
+                                   MaxWidth="200"/>
+                    </Grid>
+                </StackPanel>
+            </TabItem>
+        </TabControl>
+
+        <!-- Row 2: Apply/Delete buttons + "Existing Dat Rules" label -->
+        <Grid Grid.Row="2" ColumnDefinitions="*,Auto,Auto" Margin="0,4,0,4">
+            <TextBlock Text="Existing Dat Rules" FontWeight="Bold"
+                       VerticalAlignment="Bottom"/>
+            <Button Grid.Column="1" x:Name="btnDelete" Content="Delete"
+                    Width="59" Height="24"
+                    Margin="0,0,6,0"
+                    Click="BtnDeleteClick"/>
+            <Button Grid.Column="2" x:Name="btnSet" Content="Apply"
+                    Width="59" Height="25"
+                    Click="BtnApplyClick"/>
+        </Grid>
+
+        <!-- Row 3: DataGridGames -->
+        <DataGrid Grid.Row="3" x:Name="DataGridGames"
+                  IsReadOnly="True"
+                  CanUserReorderColumns="False"
+                  CanUserSortColumns="False"
+                  HeadersVisibility="Column"
+                  SelectionMode="Extended"
+                  GridLinesVisibility="All"
+                  BorderBrush="{DynamicResource SystemControlForegroundBaseMediumBrush}" BorderThickness="1"
+                  Margin="0,4,0,4"
+                  LoadingRow="DataGridGames_LoadingRow">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Rule Path"
+                                    Binding="{Binding DirKey}"
+                                    Width="5*"/>
+                <DataGridTextColumn Header="Archive Type"
+                                    Binding="{Binding ArchiveTypeDisplay}"
+                                    Width="2*"/>
+                <DataGridTextColumn Header="Merge Type"
+                                    Binding="{Binding MergeDisplay}"
+                                    Width="2*"/>
+                <DataGridTemplateColumn Header="Single" Width="1*">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Image Source="{Binding SingleArchiveImage}"
+                                   Width="16" Height="16"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+            </DataGrid.Columns>
+        </DataGrid>
+
+        <!-- Row 4: Bottom buttons -->
+        <Grid Grid.Row="4" ColumnDefinitions="Auto,Auto,*,Auto" Margin="0,4,0,0">
+            <Button Grid.Column="0" x:Name="btnDeleteSelected"
+                    Content="Delete Selected" Width="120" Height="25"
+                    Click="BtnDeleteSelectedClick"/>
+            <Button Grid.Column="1" x:Name="btnResetAll"
+                    Content="Reset All" Width="96" Height="25"
+                    Margin="8,0,0,0"
+                    Click="BtnResetAllClick"/>
+            <Button Grid.Column="3" x:Name="btnClose"
+                    Content="Done" Width="96" Height="25"
+                    Click="BtnCloseClick"/>
+        </Grid>
+    </Grid>
+</Window>

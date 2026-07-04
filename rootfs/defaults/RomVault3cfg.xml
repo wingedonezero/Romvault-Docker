@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Settings xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <FilesOnly>false</FilesOnly>
+  <DatRoot>DatRoot</DatRoot>
+  <CacheFile>RomVault3_3.Cache</CacheFile>
+  <FixLevel>Level2</FixLevel>
+  <DirMappings>
+    <DirMapping>
+      <DirKey>RomVault</DirKey>
+      <DirPath>/roms/RomRoot</DirPath>
+    </DirMapping>
+    <DirMapping>
+      <DirKey>ToSort</DirKey>
+      <DirPath>/roms/ToSort</DirPath>
+    </DirMapping>
+  </DirMappings>
+  <chkBoxShowComplete>true</chkBoxShowComplete>
+  <chkBoxShowPartial>true</chkBoxShowPartial>
+  <chkBoxShowFixes>true</chkBoxShowFixes>
+  <chkBoxShowMIA>true</chkBoxShowMIA>
+</Settings>

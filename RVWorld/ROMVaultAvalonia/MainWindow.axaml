@@ -1,0 +1,500 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="clr-namespace:ROMVault"
+        x:Class="ROMVault.MainWindow"
+        Title="RomVault"
+        Width="1430" Height="749"
+        WindowStartupLocation="CenterScreen"
+        Background="{DynamicResource SystemControlBackgroundChromeMediumBrush}">
+
+    <Window.Styles>
+        <!-- Flat toolbar buttons: transparent, no border -->
+        <Style Selector="Button.toolBtn">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="CornerRadius" Value="0"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+        </Style>
+        <Style Selector="Button.toolBtn:pointerover /template/ ContentPresenter">
+            <Setter Property="Background" Value="#30808080"/>
+        </Style>
+        <Style Selector="Button.toolBtn:pressed /template/ ContentPresenter">
+            <Setter Property="Background" Value="#50808080"/>
+        </Style>
+
+        <!-- Flat preset buttons -->
+        <Style Selector="Button.presetBtn">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="CornerRadius" Value="0"/>
+        </Style>
+        <Style Selector="Button.presetBtn:pointerover /template/ ContentPresenter">
+            <Setter Property="Background" Value="#30808080"/>
+        </Style>
+
+        <!-- Compact checkboxes: fit 6 checkboxes + filter in 148px area -->
+        <Style Selector="CheckBox.compact">
+            <Setter Property="Padding" Value="4,0,0,0"/>
+            <Setter Property="MinHeight" Value="0"/>
+            <Setter Property="Height" Value="20"/>
+            <Setter Property="FontSize" Value="12"/>
+        </Style>
+
+        <!-- Compact readonly textboxes: match WinForms 17px height -->
+        <Style Selector="TextBox.infoField">
+            <Setter Property="IsReadOnly" Value="True"/>
+            <Setter Property="MinHeight" Value="0"/>
+            <Setter Property="Height" Value="17"/>
+            <Setter Property="Padding" Value="2,0"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+        </Style>
+
+        <!-- Compact label text: match WinForms 13px labels -->
+        <Style Selector="TextBlock.infoLabel">
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="HorizontalAlignment" Value="Right"/>
+            <Setter Property="Margin" Value="0,0,4,0"/>
+        </Style>
+
+        <!-- DataGrid: compact sizing to match WinForms row density -->
+        <Style Selector="DataGridColumnHeader">
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="MinHeight" Value="22"/>
+            <Setter Property="Padding" Value="4,2"/>
+        </Style>
+        <Style Selector="DataGridRow">
+            <Setter Property="MinHeight" Value="19"/>
+        </Style>
+        <Style Selector="DataGridCell TextBlock">
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+    </Window.Styles>
+
+    <DockPanel>
+        <!-- Menu Bar (24px, matches WinForms menuStrip1) -->
+        <Menu DockPanel.Dock="Top" Name="menuStrip1">
+            <MenuItem Header="Update DATs" Name="tsmUpdateDATs">
+                <MenuItem Header="Update New DATs" Name="updateNewDATsToolStripMenuItem" InputGesture="F5"/>
+                <MenuItem Header="Refresh All DATs" Name="updateAllDATsToolStripMenuItem" InputGesture="Shift+F5"/>
+            </MenuItem>
+            <MenuItem Header="Scan ROMs" Name="tsmScanROMs">
+                <MenuItem Header="Scan ticked new ROMs headers only" Name="tsmScanLevel1" InputGesture="Shift+F6"/>
+                <MenuItem Header="Scan ticked new ROMs with full hash check" Name="tsmScanLevel2" InputGesture="F6"/>
+                <MenuItem Header="ReScan All ticked ROMs with full hash check" Name="tsmScanLevel3" InputGesture="Ctrl+F6"/>
+            </MenuItem>
+            <MenuItem Header="Find Fixes" Name="tsmFindFixes" InputGesture="F7"/>
+            <MenuItem Header="Fix ROMs" Name="FixROMsToolStripMenuItem" InputGesture="F8"/>
+            <MenuItem Header="Reports" Name="reportsToolStripMenuItem">
+                <MenuItem Header="Fix Dat Report" Name="fixDatReportToolStripMenuItem" InputGesture="F9"/>
+                <MenuItem Header="Full Report" Name="fullReportToolStripMenuItem" InputGesture="Shift+F9"/>
+                <MenuItem Header="Fix Report" Name="fixReportToolStripMenuItem" InputGesture="Ctrl+F9"/>
+            </MenuItem>
+            <MenuItem Header="Settings" Name="settingsToolStripMenuItem">
+                <MenuItem Header="RomVault Settings" Name="romVaultSettingsToolStripMenuItem" InputGesture="F10"/>
+                <MenuItem Header="Directory Dat Rules" Name="directorySettingsToolStripMenuItem" InputGesture="Shift+F10"/>
+                <MenuItem Header="Directory Mappings" Name="directoryMappingsToolStripMenuItem" InputGesture="Ctrl+F10"/>
+            </MenuItem>
+            <MenuItem Header="Add ToSort" Name="addToSortToolStripMenuItem" InputGesture="F11"/>
+            <MenuItem Header="Help" Name="helpToolStripMenuItem">
+                <MenuItem Header="Structured Archive Maker" Name="torrentZipToolStripMenuItem"/>
+                <MenuItem Header="Visit Help Wiki" Name="visitHelpWikiToolStripMenuItem"/>
+                <MenuItem Header="Color Key" Name="colorKeyToolStripMenuItem" InputGesture="F1"/>
+                <MenuItem Header="Whats New" Name="whatsNewToolStripMenuItem"/>
+                <MenuItem Header="About RomVault" Name="aboutRomVaultToolStripMenuItem" InputGesture="F12"/>
+            </MenuItem>
+        </Menu>
+
+        <!-- Main: Toolbar(80px FIXED) | Content -->
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="80" MaxWidth="80"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- ======== TOOLBAR (80px, BackColor=White, Fixed) ======== -->
+            <DockPanel Grid.Column="0" Name="toolbarPanel">
+                <StackPanel DockPanel.Dock="Top">
+                    <Button Name="btnUpdateDats" Classes="toolBtn" Width="80" Height="81">
+                        <Image Name="imgUpdateDats" Width="80" Height="80" Stretch="Uniform"/>
+                    </Button>
+                    <Button Name="btnScanRoms" Classes="toolBtn" Width="80" Height="81">
+                        <Image Name="imgScanRoms" Width="80" Height="80" Stretch="Uniform"/>
+                    </Button>
+                    <Button Name="btnFindFixes" Classes="toolBtn" Width="80" Height="81">
+                        <Image Name="imgFindFixes" Width="80" Height="80" Stretch="Uniform"/>
+                    </Button>
+                    <Button Name="btnFixFiles" Classes="toolBtn" Width="80" Height="81">
+                        <Image Name="imgFixFiles" Width="80" Height="80" Stretch="Uniform"/>
+                    </Button>
+                    <Button Name="btnReport" Classes="toolBtn" Width="80" Height="81">
+                        <Image Name="imgReport" Width="80" Height="80" Stretch="Uniform"/>
+                    </Button>
+                </StackPanel>
+
+                <StackPanel DockPanel.Dock="Bottom" VerticalAlignment="Bottom">
+                    <TextBlock Name="lblTreePreSets" Text="Tree Pre-Sets" Margin="2,4,0,2" FontSize="11"/>
+                    <Grid Margin="0,0,0,2">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="40"/>
+                            <ColumnDefinition Width="40"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="40"/>
+                            <RowDefinition Height="40"/>
+                        </Grid.RowDefinitions>
+                        <Button Name="btnDefault1" Classes="presetBtn" Grid.Row="0" Grid.Column="0" Width="40" Height="40">
+                            <Image Name="imgDefault1" Stretch="Fill"/>
+                        </Button>
+                        <Button Name="btnDefault2" Classes="presetBtn" Grid.Row="0" Grid.Column="1" Width="40" Height="40">
+                            <Image Name="imgDefault2" Stretch="Fill"/>
+                        </Button>
+                        <Button Name="btnDefault3" Classes="presetBtn" Grid.Row="1" Grid.Column="0" Width="40" Height="40">
+                            <Image Name="imgDefault3" Stretch="Fill"/>
+                        </Button>
+                        <Button Name="btnDefault4" Classes="presetBtn" Grid.Row="1" Grid.Column="1" Width="40" Height="40">
+                            <Image Name="imgDefault4" Stretch="Fill"/>
+                        </Button>
+                    </Grid>
+                </StackPanel>
+
+                <Panel/>
+            </DockPanel>
+
+            <!-- ======== CONTENT (splitDatInfoGameInfo: 545px | * , MinSize=450) ======== -->
+            <Grid Grid.Column="1" Name="splitDatInfoGameInfo">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="545" MinWidth="450"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- ===== LEFT PANE: DatInfo(148px FIXED) + Tree ===== -->
+                <Grid Grid.Column="0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="156" MaxHeight="156"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- gbDatInfo GroupBox (468x147, dynamically resized to panel width-10) -->
+                    <Border Grid.Row="0" BorderBrush="{DynamicResource SystemControlForegroundBaseMediumBrush}" BorderThickness="1" Margin="5,0,5,0" CornerRadius="3">
+                        <Grid Name="gbDatInfo" Margin="4,2,4,2">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="8"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="85"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="97"/>
+                                <ColumnDefinition Width="120"/>
+                            </Grid.ColumnDefinitions>
+
+                            <!-- Row 0: Header -->
+                            <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="4"
+                                       Text="Dat Info :" FontWeight="Bold" FontSize="12" Margin="0,0,0,1"/>
+
+                            <!-- Row 1: Name (full width) -->
+                            <TextBlock Grid.Row="1" Grid.Column="0" Classes="infoLabel" Text="Name :"/>
+                            <TextBox Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="3" Name="lblDITName" Classes="infoField"/>
+
+                            <!-- Row 2: Description (full width) -->
+                            <TextBlock Grid.Row="2" Grid.Column="0" Classes="infoLabel" Text="Description :"/>
+                            <TextBox Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="3" Name="lblDITDescription" Classes="infoField"/>
+
+                            <!-- Row 3: Category | Version -->
+                            <TextBlock Grid.Row="3" Grid.Column="0" Classes="infoLabel" Text="Category :"/>
+                            <TextBox Grid.Row="3" Grid.Column="1" Name="lblDITCategory" Classes="infoField"/>
+                            <TextBlock Grid.Row="3" Grid.Column="2" Classes="infoLabel" Text="Version :"/>
+                            <TextBox Grid.Row="3" Grid.Column="3" Name="lblDITVersion" Classes="infoField"/>
+
+                            <!-- Row 4: Author | Date -->
+                            <TextBlock Grid.Row="4" Grid.Column="0" Classes="infoLabel" Text="Author :"/>
+                            <TextBox Grid.Row="4" Grid.Column="1" Name="lblDITAuthor" Classes="infoField"/>
+                            <TextBlock Grid.Row="4" Grid.Column="2" Classes="infoLabel" Text="Date :"/>
+                            <TextBox Grid.Row="4" Grid.Column="3" Name="lblDITDate" Classes="infoField"/>
+
+                            <!-- Row 5: ROM Path (full width) -->
+                            <TextBlock Grid.Row="5" Grid.Column="0" Classes="infoLabel" Text="ROM Path :"/>
+                            <TextBox Grid.Row="5" Grid.Column="1" Grid.ColumnSpan="3" Name="lblDITPath" Classes="infoField"/>
+
+                            <!-- Row 6: 8px spacer (matching WinForms 10px gap between y=95 and y=105) -->
+
+                            <!-- Row 7: ROMs Got | ROMs Fixable -->
+                            <TextBlock Grid.Row="7" Grid.Column="0" Classes="infoLabel" Text="ROMs Got :"/>
+                            <TextBox Grid.Row="7" Grid.Column="1" Name="lblDITRomsGot" Classes="infoField"/>
+                            <TextBlock Grid.Row="7" Grid.Column="2" Classes="infoLabel" Text="ROMs Fixable :"/>
+                            <TextBox Grid.Row="7" Grid.Column="3" Name="lblDITRomsFixable" Classes="infoField"/>
+
+                            <!-- Row 8: ROMs Missing | ROMs Unknown -->
+                            <TextBlock Grid.Row="8" Grid.Column="0" Classes="infoLabel" Text="ROMs Missing :" Name="lblDITRomsMissingLabel"/>
+                            <TextBox Grid.Row="8" Grid.Column="1" Name="lblDITRomsMissing" Classes="infoField"/>
+                            <TextBlock Grid.Row="8" Grid.Column="2" Classes="infoLabel" Text="ROMs Unknown :" Name="lblDITRomsUnknownLabel"/>
+                            <TextBox Grid.Row="8" Grid.Column="3" Name="lblDITRomsUnknown" Classes="infoField"/>
+                        </Grid>
+                    </Border>
+
+                    <!-- ctrRvTree (Dock=Fill, BorderStyle=FixedSingle) -->
+                    <Border Grid.Row="1" BorderBrush="{DynamicResource SystemControlForegroundBaseMediumBrush}" BorderThickness="1" Margin="0,0,0,0">
+                        <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+                            <local:RvTreeControl Name="ctrRvTree" VerticalAlignment="Top"/>
+                        </ScrollViewer>
+                    </Border>
+                </Grid>
+
+                <!-- Left/Right splitter (splitDatInfoGameInfo) -->
+                <GridSplitter Grid.Column="1" Width="4" ResizeDirection="Columns" HorizontalAlignment="Center"/>
+
+                <!-- ===== RIGHT PANE: GameInfo+Checkboxes(148px FIXED) + Grids ===== -->
+                <Grid Grid.Column="2">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="156" MaxHeight="156"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- Top section: gbSetInfo + checkboxes (148px, FIXED) -->
+                    <Grid Grid.Row="0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="150"/>
+                        </Grid.ColumnDefinitions>
+
+                        <!-- gbSetInfo GroupBox -->
+                        <Border Grid.Column="0" BorderBrush="{DynamicResource SystemControlForegroundBaseMediumBrush}" BorderThickness="1" Margin="5,0,5,0" CornerRadius="3">
+                            <Grid Name="gbSetInfo" Margin="4,2,4,2">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+                                <TextBlock Text="Game Info :" FontWeight="Bold" FontSize="12"/>
+                            </Grid>
+                        </Border>
+
+                        <!-- Filter checkboxes (150px wide, nudged up; extra headroom to avoid DPI bleed) -->
+                        <StackPanel Grid.Column="1" Margin="0,0,4,0">
+                            <CheckBox Name="chkBoxShowComplete" Classes="compact" Content="Show Complete" IsChecked="True"/>
+                            <CheckBox Name="chkBoxShowPartial" Classes="compact" Content="Show Partial" IsChecked="True"/>
+                            <CheckBox Name="chkBoxShowEmpty" Classes="compact" Content="Show Empty" IsChecked="True"/>
+                            <CheckBox Name="chkBoxShowFixes" Classes="compact" Content="Show Fixes" IsChecked="True"/>
+                            <CheckBox Name="chkBoxShowMIA" Classes="compact" Content="Show MIA" IsChecked="True"/>
+                            <CheckBox Name="chkBoxShowMerged" Classes="compact" Content="Show Merged / Deduped"/>
+                            <StackPanel Orientation="Horizontal" Margin="2,4,0,0">
+                                <TextBox Name="txtFilter" Width="109" Height="20" Watermark="Filter..."
+                                         FontSize="12" Padding="2,0" MinHeight="0" VerticalContentAlignment="Center"/>
+                                <Button Name="btnClear" Content="X" Width="28" Height="22" FontSize="11" Padding="0" Margin="4,0,0,0"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </Grid>
+
+                    <!-- Bottom section: splitListArt (Game/ROM grids + Artwork) -->
+                    <Grid Grid.Row="1" Name="splitListArt">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" MinWidth="200"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <!-- splitGameListRomList: Game(246px) | ROM(*) -->
+                        <Grid Grid.Column="0" Name="splitGameListRomList">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="246" MinHeight="60"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*" MinHeight="60"/>
+                            </Grid.RowDefinitions>
+
+                            <!-- GameGrid -->
+                            <DataGrid Grid.Row="0" Name="GameGrid"
+                                      AutoGenerateColumns="False"
+                                      IsReadOnly="True"
+                                      CanUserResizeColumns="True"
+                                      CanUserReorderColumns="False"
+                                      CanUserSortColumns="True"
+                                      SelectionMode="Single"
+                                      GridLinesVisibility="Horizontal"
+                                      HeadersVisibility="Column"
+                                      RowHeight="19"
+                                      FontSize="12"
+                                      ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                                      ScrollViewer.VerticalScrollBarVisibility="Auto">
+                                <DataGrid.Columns>
+                                    <DataGridTemplateColumn Header="Type" Width="40" MinWidth="9" CanUserSort="True">
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <Image Source="{Binding TypeBitmap}" Height="18" Stretch="Uniform"
+                                                       HorizontalAlignment="Center"/>
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>
+                                    <DataGridTextColumn Header="Game (Directory / Zip)" Width="220" MinWidth="9"
+                                                        Binding="{Binding GameName}" CanUserSort="True"/>
+                                    <DataGridTextColumn Header="Description" Width="220" MinWidth="9"
+                                                        Binding="{Binding Description}" CanUserSort="True"
+                                                        IsVisible="{Binding #GameGrid.Tag, FallbackValue=True}"/>
+                                    <DataGridTextColumn Header="Modified" Width="150" MinWidth="8"
+                                                        Binding="{Binding DateTime}" CanUserSort="True"/>
+                                    <DataGridTemplateColumn Header="ROM Status" Width="200" MinWidth="200" CanUserSort="False">
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <Image Source="{Binding StatusBitmap}" Height="18" Stretch="Uniform"
+                                                       HorizontalAlignment="Left"/>
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>
+                                </DataGrid.Columns>
+                            </DataGrid>
+
+                            <!-- Game/ROM splitter -->
+                            <GridSplitter Grid.Row="1" Height="4" ResizeDirection="Rows" HorizontalAlignment="Stretch"/>
+
+                            <!-- RomGrid -->
+                            <DataGrid Grid.Row="2" Name="RomGrid"
+                                      AutoGenerateColumns="False"
+                                      IsReadOnly="True"
+                                      CanUserResizeColumns="True"
+                                      CanUserReorderColumns="False"
+                                      CanUserSortColumns="True"
+                                      SelectionMode="Single"
+                                      GridLinesVisibility="Horizontal"
+                                      HeadersVisibility="Column"
+                                      RowHeight="19"
+                                      FontSize="12"
+                                      ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                                      ScrollViewer.VerticalScrollBarVisibility="Auto">
+                                <DataGrid.Columns>
+                                    <DataGridTemplateColumn Header="Got" Width="65" MinWidth="9" CanUserSort="True">
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <Image Source="{Binding GotBitmap}" Height="18" Stretch="Uniform"
+                                                       HorizontalAlignment="Center"/>
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>
+                                    <DataGridTextColumn Header="ROM (File)" Width="150" MinWidth="9"
+                                                        Binding="{Binding RomName}" CanUserSort="True"/>
+                                    <DataGridTextColumn Header="Merge" Width="80" MinWidth="9"
+                                                        Binding="{Binding Merge}" CanUserSort="True"/>
+                                    <DataGridTextColumn Header="Size" Width="80" MinWidth="9"
+                                                        Binding="{Binding Size}" CanUserSort="True"/>
+                                    <DataGridTextColumn Header="CRC32" Width="175" MinWidth="9"
+                                                        Binding="{Binding CRC32}" CanUserSort="True"/>
+                                    <DataGridTextColumn Header="SHA1" Width="150" MinWidth="9"
+                                                        Binding="{Binding SHA1}" CanUserSort="True"/>
+                                    <DataGridTextColumn Header="MD5" Width="150" MinWidth="9"
+                                                        Binding="{Binding MD5}" CanUserSort="True"/>
+                                    <DataGridTextColumn Header="AltSize" Width="60" MinWidth="9"
+                                                        Binding="{Binding AltSize}" CanUserSort="True"
+                                                        IsVisible="False"/>
+                                    <DataGridTextColumn Header="AltCRC32" Width="175" MinWidth="9"
+                                                        Binding="{Binding AltCRC32}" CanUserSort="True"
+                                                        IsVisible="False"/>
+                                    <DataGridTextColumn Header="AltSHA1" Width="150" MinWidth="9"
+                                                        Binding="{Binding AltSHA1}" CanUserSort="True"
+                                                        IsVisible="False"/>
+                                    <DataGridTextColumn Header="AltMD5" Width="150" MinWidth="9"
+                                                        Binding="{Binding AltMD5}" CanUserSort="True"
+                                                        IsVisible="False"/>
+                                    <DataGridTextColumn Header="Status" Width="175" MinWidth="9"
+                                                        Binding="{Binding Status}" CanUserSort="True"/>
+                                    <DataGridTextColumn Header="Modified Date/Time" Width="175" MinWidth="9"
+                                                        Binding="{Binding DateModFile}"/>
+                                    <DataGridTextColumn Header="ZipIndex" Width="175" MinWidth="9"
+                                                        Binding="{Binding ZipIndex}" CanUserSort="True"/>
+                                    <DataGridTextColumn Header="Instance Count" Width="125" MinWidth="6"
+                                                        Binding="{Binding DupeCount}" CanUserSort="True"/>
+                                </DataGrid.Columns>
+                            </DataGrid>
+                        </Grid>
+
+                        <!-- Artwork splitter -->
+                        <GridSplitter Grid.Column="1" Width="4" ResizeDirection="Columns" HorizontalAlignment="Center"
+                                      Name="artworkSplitter" IsVisible="False"/>
+
+                        <!-- Artwork TabControl (172px default, resizable via splitter, width persisted) -->
+                        <TabControl Grid.Column="2" Name="TabEmuArc" IsVisible="False" FontSize="11">
+                            <TabItem Header="ArtWork" Name="tabArtWork">
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="*"/>
+                                        <RowDefinition Height="*"/>
+                                    </Grid.RowDefinitions>
+                                    <Border Grid.Row="0" BorderBrush="{DynamicResource SystemControlForegroundBaseMediumBrush}" BorderThickness="1" Margin="4,4,4,2">
+                                        <Image Name="picArtwork" Stretch="Uniform"/>
+                                    </Border>
+                                    <Border Grid.Row="1" BorderBrush="{DynamicResource SystemControlForegroundBaseMediumBrush}" BorderThickness="1" Margin="4,2,4,4">
+                                        <Image Name="picLogo" Stretch="Uniform"/>
+                                    </Border>
+                                </Grid>
+                            </TabItem>
+                            <TabItem Header="Medium" Name="tabMedium">
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="*"/>
+                                        <RowDefinition Height="*"/>
+                                    </Grid.RowDefinitions>
+                                    <Border Grid.Row="0" BorderBrush="{DynamicResource SystemControlForegroundBaseMediumBrush}" BorderThickness="1" Margin="4,4,4,2">
+                                        <Image Name="picMedium1" Stretch="Uniform"/>
+                                    </Border>
+                                    <Border Grid.Row="1" BorderBrush="{DynamicResource SystemControlForegroundBaseMediumBrush}" BorderThickness="1" Margin="4,2,4,4">
+                                        <Image Name="picMedium2" Stretch="Uniform"/>
+                                    </Border>
+                                </Grid>
+                            </TabItem>
+                            <TabItem Header="Screens" Name="tabScreens">
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="*"/>
+                                        <RowDefinition Height="*"/>
+                                    </Grid.RowDefinitions>
+                                    <Border Grid.Row="0" BorderBrush="{DynamicResource SystemControlForegroundBaseMediumBrush}" BorderThickness="1" Margin="4,4,4,2">
+                                        <Image Name="picScreenTitle" Stretch="Uniform"/>
+                                    </Border>
+                                    <Border Grid.Row="1" BorderBrush="{DynamicResource SystemControlForegroundBaseMediumBrush}" BorderThickness="1" Margin="4,2,4,4">
+                                        <Image Name="picScreenShot" Stretch="Uniform"/>
+                                    </Border>
+                                </Grid>
+                            </TabItem>
+                            <TabItem Header="Info" Name="tabInfo">
+                                <DockPanel>
+                                    <Slider Name="trbFontSize" DockPanel.Dock="Bottom"
+                                            Minimum="3" Maximum="15" Value="7"
+                                            TickFrequency="1" IsSnapToTickEnabled="True"
+                                            Width="161" HorizontalAlignment="Left"/>
+                                    <TextBox Name="txtInfo" IsReadOnly="True" AcceptsReturn="True"
+                                             FontFamily="Consolas" FontSize="9"
+                                             TextWrapping="NoWrap"
+                                             ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                                             ScrollViewer.VerticalScrollBarVisibility="Auto"/>
+                                </DockPanel>
+                            </TabItem>
+                            <TabItem Header="Info2" Name="tabInfo2">
+                                <DockPanel>
+                                    <Slider Name="trbFontSize2" DockPanel.Dock="Bottom"
+                                            Minimum="3" Maximum="15" Value="7"
+                                            TickFrequency="1" IsSnapToTickEnabled="True"
+                                            Width="161" HorizontalAlignment="Left"/>
+                                    <TextBox Name="txtInfo2" IsReadOnly="True" AcceptsReturn="True"
+                                             FontFamily="Consolas" FontSize="9"
+                                             TextWrapping="NoWrap"
+                                             ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                                             ScrollViewer.VerticalScrollBarVisibility="Auto"/>
+                                </DockPanel>
+                            </TabItem>
+                        </TabControl>
+                    </Grid>
+                </Grid>
+            </Grid>
+        </Grid>
+    </DockPanel>
+</Window>

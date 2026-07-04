@@ -1,0 +1,68 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="ROMVault.FrmProgressWindowFix"
+        Title="Fixing Files"
+        Width="1027" Height="500"
+        WindowStartupLocation="CenterOwner"
+        CanResize="True"
+        FontSize="12">
+
+    <Window.Styles>
+        <Style Selector="Button.progressCompact">
+            <Setter Property="MinHeight" Value="0"/>
+            <Setter Property="Padding" Value="10,0"/>
+            <Setter Property="FontSize" Value="12"/>
+        </Style>
+    </Window.Styles>
+    <Grid RowDefinitions="Auto,*">
+        <!-- Panel 1: Label, progress bar, and cancel button -->
+        <Grid Grid.Row="0" Height="64" Margin="12,9,12,0"
+              RowDefinitions="Auto,Auto">
+            <!-- Row 0: label -->
+            <TextBlock x:Name="label" Grid.Row="0"
+                       Text="Starting operation..."
+                       TextTrimming="CharacterEllipsis"
+/>
+
+            <!-- Row 1: progressBar + cancelButton -->
+            <Grid Grid.Row="1" ColumnDefinitions="*,Auto" Margin="0,4,0,0">
+                <ProgressBar x:Name="progressBar" Grid.Column="0"
+                             Height="23" Minimum="0" Maximum="100" Value="0"/>
+                <Button x:Name="cancelButton" Grid.Column="1" Classes="progressCompact"
+                        Content="Cancel" Width="75" Height="23"
+                        Margin="12,0,0,0"
+                        Click="CancelButtonClick"/>
+            </Grid>
+        </Grid>
+
+        <!-- Panel 2: Fix DataGrid (fills remaining space) -->
+        <DataGrid x:Name="dataGridView1" Grid.Row="1"
+                  Margin="0,4,0,0"
+                  IsReadOnly="True"
+                  CanUserResizeColumns="True"
+                  CanUserReorderColumns="False"
+                  HeadersVisibility="Column"
+                  GridLinesVisibility="Horizontal"
+                  SelectionMode="Single"
+                  AutoGenerateColumns="False">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Directory (Fixing)" Width="250"
+                                    Binding="{Binding FixDir}"/>
+                <DataGridTextColumn Header="Archive (Fixing)" Width="200"
+                                    Binding="{Binding FixZip}"/>
+                <DataGridTextColumn Header="File (Fixing)" Width="200"
+                                    Binding="{Binding FixFile}"/>
+                <DataGridTextColumn Header="Size (Fixing)" Width="110"
+                                    Binding="{Binding Size}"/>
+                <DataGridTextColumn Header="Status" Width="100"
+                                    Binding="{Binding Status}"/>
+                <DataGridTextColumn Header="Directory (From)" Width="150"
+                                    Binding="{Binding SourceDir}"/>
+                <DataGridTextColumn Header="Archive (From)" Width="120"
+                                    Binding="{Binding SourceZip}"/>
+                <DataGridTextColumn Header="File (From)" Width="100"
+                                    Binding="{Binding SourceFile}"/>
+            </DataGrid.Columns>
+        </DataGrid>
+    </Grid>
+</Window>
