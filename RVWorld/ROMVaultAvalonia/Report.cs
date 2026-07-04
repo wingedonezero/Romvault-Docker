@@ -31,14 +31,14 @@ namespace ROMVault
             RepStatus.Missing,
             RepStatus.Corrupt,
             RepStatus.CanBeFixed,
-            RepStatus.CanBeFixedMIA,
+            //RepStatus.CanBeFixedMIA,
             RepStatus.CorruptCanBeFixed
         };
 
         private static readonly RepStatus[] Fixing =
         {
             RepStatus.CanBeFixed,
-            RepStatus.CanBeFixedMIA,
+            //RepStatus.CanBeFixedMIA,
             RepStatus.MoveToSort,
             RepStatus.Delete,
             RepStatus.NeededForFix,

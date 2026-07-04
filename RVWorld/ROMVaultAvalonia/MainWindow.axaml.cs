@@ -226,6 +226,7 @@ namespace ROMVault
             // Load saved checkbox states
             chkBoxShowComplete.IsChecked = Settings.rvSettings.chkBoxShowComplete;
             chkBoxShowPartial.IsChecked = Settings.rvSettings.chkBoxShowPartial;
+            chkBoxShowEmpty.IsChecked = Settings.rvSettings.chkBoxShowEmpty;
             chkBoxShowFixes.IsChecked = Settings.rvSettings.chkBoxShowFixes;
             chkBoxShowMIA.IsChecked = Settings.rvSettings.chkBoxShowMIA;
             chkBoxShowMerged.IsChecked = Settings.rvSettings.chkBoxShowMerged;

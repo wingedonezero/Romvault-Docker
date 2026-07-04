@@ -147,6 +147,14 @@ namespace ROMVault
                     TimeLogShow(bgwT.Text);
                 return;
             }
+            if (obj is bgwTextError bgwTW)
+            {
+                _errorOpen = true;
+                label.Text = bgwTW.Text;
+                if (ShowTimeLog)
+                    TimeLogShow(bgwTW.Text);
+                return;
+            }
             if (obj is bgwSetRange bgwSr)
             {
                 progressBar.Minimum = 0;
