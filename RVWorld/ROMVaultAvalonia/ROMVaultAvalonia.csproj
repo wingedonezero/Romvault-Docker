@@ -1,0 +1,38 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <RootNamespace>ROMVault</RootNamespace>
+    <AssemblyName>ROMVault37</AssemblyName>
+    <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
+    <AssemblyVersion>3.7.4.0</AssemblyVersion>
+    <Version>3.7.4</Version>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Avalonia" Version="11.3.12" />
+    <PackageReference Include="Avalonia.Desktop" Version="11.3.12" />
+    <PackageReference Include="Avalonia.Themes.Fluent" Version="11.3.12" />
+    <PackageReference Include="Avalonia.Fonts.Inter" Version="11.3.12" />
+    <PackageReference Include="Avalonia.Controls.DataGrid" Version="11.3.12" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <AvaloniaResource Include="Assets\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\DarkAvalonia\DarkAvalonia.csproj" />
+    <ProjectReference Include="..\RomVaultCore\RomVaultCore.csproj" />
+    <ProjectReference Include="..\Compress\Compress.csproj" />
+    <ProjectReference Include="..\DATReader\DATReader.csproj" />
+    <ProjectReference Include="..\RVIO\RVIO.csproj" />
+    <ProjectReference Include="..\SharedEnum\SharedEnum.csproj" />
+    <ProjectReference Include="..\SortMethods\SortMethods.csproj" />
+    <ProjectReference Include="..\ByteSortedList\StorageList.csproj" />
+    <ProjectReference Include="..\CodePage\CodePage.csproj" />
+    <ProjectReference Include="..\TrrntZipUIAvalonia\TrrntZipUIAvalonia.csproj" />
+  </ItemGroup>
+
+</Project>

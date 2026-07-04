@@ -1,0 +1,109 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:dg="using:Avalonia.Controls"
+        x:Class="ROMVault.FrmDirectoryMappings"
+        Title="Set Directory Mapping"
+        Width="709" Height="428"
+        MinWidth="709" MinHeight="300"
+        WindowStartupLocation="CenterOwner"
+        ShowInTaskbar="False"
+        FontSize="12">
+
+    <Grid Margin="12" RowDefinitions="Auto,Auto,Auto,Auto,*,Auto">
+
+        <!-- Row 0: Rule Path -->
+        <Grid Grid.Row="0" ColumnDefinitions="80,*" Margin="0,0,0,6">
+            <TextBlock Grid.Column="0" Text="Rule Path:"
+                       VerticalAlignment="Center"
+/>
+            <Border Grid.Column="1" BorderBrush="{DynamicResource SystemControlForegroundBaseMediumBrush}" BorderThickness="1"
+                    Background="{DynamicResource RvBgBrush0}" MinHeight="22">
+                <TextBlock x:Name="txtDATLocation"
+                           VerticalAlignment="Center"
+                           Margin="4,0"
+    />
+            </Border>
+        </Grid>
+
+        <!-- Row 1: Dir Location -->
+        <Grid Grid.Row="1" ColumnDefinitions="80,*,Auto,Auto" Margin="0,0,0,6">
+            <TextBlock Grid.Column="0" Text="Dir Location:"
+                       VerticalAlignment="Center"
+/>
+            <Border Grid.Column="1" BorderBrush="{DynamicResource SystemControlForegroundBaseMediumBrush}" BorderThickness="1"
+                    Background="{DynamicResource RvBgBrush0}" MinHeight="22">
+                <TextBlock x:Name="txtROMLocation"
+                           VerticalAlignment="Center"
+                           Margin="4,0"
+    />
+            </Border>
+            <Button x:Name="btnSetROMLocation" Grid.Column="2"
+                    Width="33" Height="29" Margin="4,0,0,0"
+                    ToolTip.Tip="Select a new Directory mapping location for this path."
+                    Click="BtnSetROMLocationClick">
+                <TextBlock Text="&#x1F4C2;" FontSize="14"/>
+            </Button>
+            <Button x:Name="btnClearROMLocation" Grid.Column="3"
+                    Width="33" Height="29" Margin="2,0,0,0"
+                    ToolTip.Tip="Use this to clear the directory mapping.&#x0a;This rule will still apply the archive options and checked options below to the selected directory."
+                    Click="btnClearROMLocation_Click">
+                <TextBlock Text="&#x2715;" FontSize="14"/>
+            </Button>
+        </Grid>
+
+        <!-- Row 2: Delete and Apply buttons -->
+        <StackPanel Grid.Row="2" Orientation="Horizontal"
+                    HorizontalAlignment="Right" Margin="0,0,0,6">
+            <Button x:Name="btnDelete" Content="Delete"
+                    Width="59" Height="25" Margin="0,0,4,0"
+                    IsVisible="False"
+                    Click="BtnDeleteClick"/>
+            <Button x:Name="btnSet" Content="Apply"
+                    Width="59" Height="25"
+                    Click="BtnApplyClick"/>
+        </StackPanel>
+
+        <!-- Row 3: Existing Mapping label -->
+        <TextBlock x:Name="lblDelete" Grid.Row="3"
+                   Text="Existing Mapping"
+                   FontWeight="Bold" Margin="0,0,0,4"/>
+
+        <!-- Row 4: DataGrid -->
+        <dg:DataGrid x:Name="DGDirectoryMappingRules" Grid.Row="4"
+                     IsReadOnly="True"
+                     CanUserResizeColumns="True"
+                     CanUserReorderColumns="False"
+                     CanUserSortColumns="False"
+                     HeadersVisibility="Column"
+                     SelectionMode="Extended"
+                     GridLinesVisibility="All"
+                     BorderBrush="{DynamicResource SystemControlForegroundBaseMediumBrush}" BorderThickness="1"
+                     DoubleTapped="DataGridGamesDoubleClick"
+                     LoadingRow="DGDirectoryMappingRules_LoadingRow">
+            <dg:DataGrid.Columns>
+                <dg:DataGridTextColumn Header="Rule Path"
+                                       Binding="{Binding DirKey}"
+                                       Width="*"/>
+                <dg:DataGridTextColumn Header="Dir Location"
+                                       Binding="{Binding DirPath}"
+                                       Width="*"/>
+            </dg:DataGrid.Columns>
+        </dg:DataGrid>
+
+        <!-- Row 5: Bottom buttons -->
+        <Grid Grid.Row="5" ColumnDefinitions="Auto,Auto,*,Auto" Margin="0,8,0,0">
+            <Button x:Name="btnDeleteSelected" Grid.Column="0"
+                    Content="Delete Selected" Width="110" Height="25"
+                    Click="BtnDeleteSelectedClick"/>
+            <Button x:Name="btnResetAll" Grid.Column="1"
+                    Content="Reset All" Width="96" Height="25"
+                    Margin="8,0,0,0"
+                    Click="BtnResetAllClick"/>
+            <Panel Grid.Column="2"/>
+            <Button x:Name="btnClose" Grid.Column="3"
+                    Content="Done" Width="96" Height="25"
+                    Click="BtnCloseClick"/>
+        </Grid>
+
+    </Grid>
+</Window>

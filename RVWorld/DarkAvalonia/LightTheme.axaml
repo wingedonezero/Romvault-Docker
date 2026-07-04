@@ -1,0 +1,11 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Color x:Key="RvBg0">#FFFFFF</Color>
+    <Color x:Key="RvBg">#F0F0F0</Color>
+    <Color x:Key="RvBg1">#FFFFFF</Color>
+    <Color x:Key="RvFg">#000000</Color>
+    <SolidColorBrush x:Key="RvBgBrush0" Color="{DynamicResource RvBg0}" />
+    <SolidColorBrush x:Key="RvBgBrush" Color="{DynamicResource RvBg}" />
+    <SolidColorBrush x:Key="RvBgBrush1" Color="{DynamicResource RvBg1}" />
+    <SolidColorBrush x:Key="RvFgBrush" Color="{DynamicResource RvFg}" />
+</ResourceDictionary>

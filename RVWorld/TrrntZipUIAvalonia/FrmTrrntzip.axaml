@@ -1,0 +1,140 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="TrrntZipUIAvalonia.FrmTrrntzip"
+        Title="SAM-UI"
+        Width="784" Height="400"
+        MinWidth="428" MinHeight="327"
+        CanResize="True">
+
+    <Grid ColumnDefinitions="250,*">
+
+        <!-- Left panel (StatusPanel) -->
+        <StackPanel x:Name="StatusPanel" Grid.Column="0" Margin="0">
+
+            <!-- Title image placeholder - clickable text link -->
+            <TextBlock x:Name="picTitle"
+                       Text="SAM-UI"
+                       FontSize="24" FontWeight="Bold"
+                       Margin="12,6,12,6"
+                       Height="84"
+                       Cursor="Hand" />
+
+            <!-- Drop zone + label row -->
+            <Grid ColumnDefinitions="75,*" Margin="0,0,0,0">
+                <!-- DropBox area -->
+                <Border x:Name="DropBox"
+                        Grid.Column="0"
+                        Margin="10,0,0,0"
+                        Width="63" Height="61"
+                        BorderBrush="Gray" BorderThickness="1"
+                        Background="Transparent"
+                        DragDrop.AllowDrop="True"
+                        HorizontalAlignment="Left">
+                    <Image x:Name="DropBoxImage"
+                           Stretch="Uniform" />
+                </Border>
+
+                <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="4,0,0,0">
+                    <TextBlock Text="&lt;-- drop Files/Dirs here" Margin="0,0,0,4" />
+
+                    <!-- Pause and Cancel buttons -->
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,12,0">
+                        <Button x:Name="btnPause" IsEnabled="False"
+                                Width="24" Height="24" Margin="0,0,4,0"
+                                Padding="2"
+                                Click="btnPause_Click">
+                            <Image x:Name="btnPauseImage"
+                                   Source="/Assets/Pause.png"
+                                   Width="16" Height="16" />
+                        </Button>
+                        <Button x:Name="btnCancel" IsEnabled="False"
+                                Width="24" Height="24"
+                                Padding="2"
+                                Click="btnCancel_Click">
+                            <TextBlock Text="X" FontWeight="Bold"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Button>
+                    </StackPanel>
+                </StackPanel>
+            </Grid>
+
+            <!-- Input type -->
+            <Grid ColumnDefinitions="72,*" Margin="12,8,12,0">
+                <TextBlock Text="Input:" VerticalAlignment="Center" Grid.Column="0" />
+                <ComboBox x:Name="cboInType" Grid.Column="1"
+                          HorizontalAlignment="Stretch"
+                          SelectionChanged="cboInType_SelectionChanged">
+                    <ComboBoxItem Content="ZIP" />
+                    <ComboBoxItem Content="7Z" />
+                    <ComboBoxItem Content="ZIP &amp; 7Z" />
+                    <ComboBoxItem Content="Files" />
+                    <ComboBoxItem Content="Directories" />
+                    <ComboBoxItem Content="All" />
+                </ComboBox>
+            </Grid>
+
+            <!-- Output type -->
+            <Grid ColumnDefinitions="72,*" Margin="12,4,12,0">
+                <TextBlock Text="Output:" VerticalAlignment="Center" Grid.Column="0" />
+                <ComboBox x:Name="cboOutType" Grid.Column="1"
+                          HorizontalAlignment="Stretch"
+                          SelectionChanged="cboOutType_SelectionChanged">
+                    <ComboBoxItem Content="Zip-Torrent" />
+                    <ComboBoxItem Content="Zip-ZSTD" />
+                    <ComboBoxItem Content="7Z-ZSTD" />
+                    <ComboBoxItem Content="7Z-ZSTD-Solid" />
+                    <ComboBoxItem Content="7Z-LZMA" />
+                    <ComboBoxItem Content="7Z-LZMA-Solid" />
+                </ComboBox>
+            </Grid>
+
+            <!-- Fix and Force checkboxes + status label -->
+            <Grid ColumnDefinitions="*,Auto,Auto" Margin="12,4,12,0">
+                <TextBlock x:Name="lblTotalStatus" Text="(0/0)"
+                           VerticalAlignment="Center" Grid.Column="0" />
+                <CheckBox x:Name="chkFix" Content="Fix" IsChecked="True"
+                          Grid.Column="1" Margin="0,0,8,0"
+                          Click="chkFix_CheckedChanged" />
+                <CheckBox x:Name="chkForce" Content="Force"
+                          Grid.Column="2"
+                          Click="chkForce_CheckedChanged" />
+            </Grid>
+
+            <!-- Processor slider -->
+            <Slider x:Name="tbProccessors"
+                    Minimum="1" Maximum="1"
+                    IsSnapToTickEnabled="True" TickFrequency="1"
+                    Margin="12,4,12,0"
+                    ValueChanged="tbProccessors_ValueChanged" />
+
+            <!-- Dynamic thread labels and progress bars go here -->
+            <StackPanel x:Name="ThreadStatusPanel" Margin="0,4,0,0" />
+
+        </StackPanel>
+
+        <!-- Splitter -->
+        <GridSplitter Grid.Column="0" Width="4"
+                      ResizeDirection="Columns"
+                      Background="Transparent" />
+
+        <!-- Right panel - DataGrid -->
+        <DataGrid x:Name="dataGrid" Grid.Column="1"
+                  IsReadOnly="True"
+                  CanUserReorderColumns="False"
+                  HeadersVisibility="Column"
+                  SelectionMode="Single"
+                  GridLinesVisibility="None"
+                  AutoGenerateColumns="False">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="FileName"
+                                    Binding="{Binding FileName}"
+                                    Width="*"
+                                    MinWidth="200" />
+                <DataGridTextColumn Header="Status"
+                                    Binding="{Binding Status}"
+                                    Width="160" />
+            </DataGrid.Columns>
+        </DataGrid>
+
+    </Grid>
+</Window>

@@ -394,8 +394,8 @@ namespace RomVaultCore
     }
     public class DirMapping : IComparable<DirMapping>
     {
-        public string DirKey;
-        public string DirPath;
+        public string DirKey { get; set; }
+        public string DirPath { get; set; }
 
         public int CompareTo(DirMapping obj)
         {

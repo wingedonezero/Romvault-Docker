@@ -1,0 +1,24 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="ROMVault.FrmShowError"
+        Title="RomVault Error report"
+        Width="589" Height="583"
+        WindowStartupLocation="CenterOwner"
+        CanResize="False"
+>
+    <Grid RowDefinitions="*,Auto" Margin="12">
+        <TextBox x:Name="textBox1" Grid.Row="0"
+                 IsReadOnly="True" AcceptsReturn="True"
+                 TextWrapping="Wrap"
+    />
+        <Grid Grid.Row="1" ColumnDefinitions="*,Auto" Margin="0,8,0,0">
+            <TextBlock x:Name="label1" Grid.Column="0"
+                       Text="Sending Error Message to RomVault.Com"
+                       VerticalAlignment="Center"
+/>
+            <Button Grid.Column="1" Content="Exit"
+                    Width="117" Height="28"
+                    Click="button1_Click"/>
+        </Grid>
+    </Grid>
+</Window>
