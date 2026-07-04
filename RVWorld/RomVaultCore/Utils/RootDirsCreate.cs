@@ -28,8 +28,8 @@ namespace RomVaultCore.Utils
         {
             try
             {
-                if (!Directory.Exists(DB.GetToSortPrimary().Name))
-                    Directory.CreateDirectory(DB.GetToSortPrimary().Name);
+                if (!Directory.Exists(DB.GetToSortPrimary().FullName))
+                    Directory.CreateDirectory(DB.GetToSortPrimary().FullName);
             }
             catch { }
         }

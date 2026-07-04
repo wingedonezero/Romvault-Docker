@@ -27,7 +27,7 @@ namespace RomVaultCore.FixFile.FixAZipCore
             string toSortFullName;
             if (toSortCorruptGame == null)
             {
-                string corruptDir = Path.Combine(DB.GetToSortPrimary().Name, "Corrupt");
+                string corruptDir = Path.Combine(DB.GetToSortPrimary().FullName, "Corrupt");
                 if (!Directory.Exists(corruptDir))
                 {
                     Directory.CreateDirectory(corruptDir);
@@ -54,7 +54,7 @@ namespace RomVaultCore.FixFile.FixAZipCore
             }
             else
             {
-                string corruptDir = Path.Combine(DB.GetToSortPrimary().Name, "Corrupt");
+                string corruptDir = Path.Combine(DB.GetToSortPrimary().FullName, "Corrupt");
                 toSortFullName = Path.Combine(corruptDir, toSortCorruptGame.Name);
             }
 
