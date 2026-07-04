@@ -123,6 +123,9 @@ namespace ROMVault
 
                     mainWindow.Show();
                     Close();
+
+                    if (!string.IsNullOrWhiteSpace(Program.errorReadingSettings))
+                        Program.ShowDialog(Program.errorReadingSettings, "Error Reading Settings");
                 }
             }
         }

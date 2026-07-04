@@ -17,6 +17,7 @@ using DarkAvalonia;
 using RomVaultCore;
 using RomVaultCore.RvDB;
 using RomVaultCore.Utils;
+using RVUtils;
 
 namespace ROMVault
 {
@@ -318,28 +319,28 @@ namespace ROMVault
                             retVal = string.Compare(x.Merge ?? "", y.Merge ?? "", StringComparison.Ordinal);
                             break;
                         case eRomGrid.Size:
-                            retVal = ULong.iCompareNull(x.Size, y.Size);
+                            retVal = ULongUtils.ULongCompareNull(x.Size, y.Size);
                             break;
                         case eRomGrid.CRC32:
-                            retVal = ArrByte.ICompare(x.CRC, y.CRC);
+                            retVal = ByteUtils.ByteArrCompare(x.CRC, y.CRC);
                             break;
                         case eRomGrid.SHA1:
-                            retVal = ArrByte.ICompare(x.SHA1, y.SHA1);
+                            retVal = ByteUtils.ByteArrCompare(x.SHA1, y.SHA1);
                             break;
                         case eRomGrid.MD5:
-                            retVal = ArrByte.ICompare(x.MD5, y.MD5);
+                            retVal = ByteUtils.ByteArrCompare(x.MD5, y.MD5);
                             break;
                         case eRomGrid.AltSize:
-                            retVal = ULong.iCompareNull(x.AltSize, y.AltSize);
+                            retVal = ULongUtils.ULongCompareNull(x.AltSize, y.AltSize);
                             break;
                         case eRomGrid.AltCRC32:
-                            retVal = ArrByte.ICompare(x.AltCRC, y.AltCRC);
+                            retVal = ByteUtils.ByteArrCompare(x.AltCRC, y.AltCRC);
                             break;
                         case eRomGrid.AltSHA1:
-                            retVal = ArrByte.ICompare(x.AltSHA1, y.AltSHA1);
+                            retVal = ByteUtils.ByteArrCompare(x.AltSHA1, y.AltSHA1);
                             break;
                         case eRomGrid.AltMD5:
-                            retVal = ArrByte.ICompare(x.AltMD5, y.AltMD5);
+                            retVal = ByteUtils.ByteArrCompare(x.AltMD5, y.AltMD5);
                             break;
                         case eRomGrid.Status:
                             retVal = string.Compare(x.Status ?? "", y.Status ?? "", StringComparison.Ordinal);

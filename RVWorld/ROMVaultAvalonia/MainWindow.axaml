@@ -168,7 +168,7 @@
             </DockPanel>
 
             <!-- ======== CONTENT (splitDatInfoGameInfo: 545px | * , MinSize=450) ======== -->
-            <Grid Grid.Column="1">
+            <Grid Grid.Column="1" Name="splitDatInfoGameInfo">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="545" MinWidth="450"/>
                     <ColumnDefinition Width="Auto"/>
@@ -299,7 +299,7 @@
                     </Grid>
 
                     <!-- Bottom section: splitListArt (Game/ROM grids + Artwork) -->
-                    <Grid Grid.Row="1">
+                    <Grid Grid.Row="1" Name="splitListArt">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*" MinWidth="200"/>
                             <ColumnDefinition Width="Auto"/>
@@ -307,7 +307,7 @@
                         </Grid.ColumnDefinitions>
 
                         <!-- splitGameListRomList: Game(246px) | ROM(*) -->
-                        <Grid Grid.Column="0">
+                        <Grid Grid.Column="0" Name="splitGameListRomList">
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="246" MinHeight="60"/>
                                 <RowDefinition Height="Auto"/>
@@ -421,8 +421,8 @@
                         <GridSplitter Grid.Column="1" Width="4" ResizeDirection="Columns" HorizontalAlignment="Center"
                                       Name="artworkSplitter" IsVisible="False"/>
 
-                        <!-- Artwork TabControl (172px wide) -->
-                        <TabControl Grid.Column="2" Name="TabEmuArc" Width="172" IsVisible="False" FontSize="11">
+                        <!-- Artwork TabControl (172px default, resizable via splitter, width persisted) -->
+                        <TabControl Grid.Column="2" Name="TabEmuArc" IsVisible="False" FontSize="11">
                             <TabItem Header="ArtWork" Name="tabArtWork">
                                 <Grid>
                                     <Grid.RowDefinitions>
@@ -466,18 +466,30 @@
                                 </Grid>
                             </TabItem>
                             <TabItem Header="Info" Name="tabInfo">
-                                <TextBox Name="txtInfo" IsReadOnly="True" AcceptsReturn="True"
-                                         FontFamily="Consolas" FontSize="9"
-                                         TextWrapping="NoWrap"
-                                         ScrollViewer.HorizontalScrollBarVisibility="Auto"
-                                         ScrollViewer.VerticalScrollBarVisibility="Auto"/>
+                                <DockPanel>
+                                    <Slider Name="trbFontSize" DockPanel.Dock="Bottom"
+                                            Minimum="3" Maximum="15" Value="7"
+                                            TickFrequency="1" IsSnapToTickEnabled="True"
+                                            Width="161" HorizontalAlignment="Left"/>
+                                    <TextBox Name="txtInfo" IsReadOnly="True" AcceptsReturn="True"
+                                             FontFamily="Consolas" FontSize="9"
+                                             TextWrapping="NoWrap"
+                                             ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                                             ScrollViewer.VerticalScrollBarVisibility="Auto"/>
+                                </DockPanel>
                             </TabItem>
                             <TabItem Header="Info2" Name="tabInfo2">
-                                <TextBox Name="txtInfo2" IsReadOnly="True" AcceptsReturn="True"
-                                         FontFamily="Consolas" FontSize="9"
-                                         TextWrapping="NoWrap"
-                                         ScrollViewer.HorizontalScrollBarVisibility="Auto"
-                                         ScrollViewer.VerticalScrollBarVisibility="Auto"/>
+                                <DockPanel>
+                                    <Slider Name="trbFontSize2" DockPanel.Dock="Bottom"
+                                            Minimum="3" Maximum="15" Value="7"
+                                            TickFrequency="1" IsSnapToTickEnabled="True"
+                                            Width="161" HorizontalAlignment="Left"/>
+                                    <TextBox Name="txtInfo2" IsReadOnly="True" AcceptsReturn="True"
+                                             FontFamily="Consolas" FontSize="9"
+                                             TextWrapping="NoWrap"
+                                             ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                                             ScrollViewer.VerticalScrollBarVisibility="Auto"/>
+                                </DockPanel>
                             </TabItem>
                         </TabControl>
                     </Grid>

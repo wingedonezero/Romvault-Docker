@@ -13,6 +13,7 @@ using Avalonia.Platform.Storage;
 using RomVaultCore;
 using RomVaultCore.RvDB;
 using RomVaultCore.Utils;
+using RVUtils;
 
 namespace ROMVault
 {

@@ -102,7 +102,7 @@ namespace ROMVault
             imgDefault4.Source = rvImages.GetBitmap("default4");
 
             AddGameMetaData();
-            Title = $"RomVault ({Program.strVersion})";
+            Title = $"RomVault ({Program.strVersion}) {AppDomain.CurrentDomain.BaseDirectory}";
 
             _displayColor = new Color[(int)RepStatus.EndValue];
             _fontColor = new Color[(int)RepStatus.EndValue];
@@ -244,6 +244,8 @@ namespace ROMVault
             ToolTip.SetTip(btnDefault4, "Right Click: Save Tree Settings\nLeft Click: Load Tree Settings");
             ToolTip.SetTip(btnUpdateDats, "Left Click: Dat Update\nShift Left Click: Full Dat Rescan\n\nRight Click: Open DatVault");
             ToolTip.SetTip(btnFixFiles, "Left Click: Fix Files\nRight Click: Scan / Find Fix / Fix");
+
+            ReadDefaults();
         }
 
         // returns either white or black, depending on quick luminance of the Color
@@ -458,7 +460,7 @@ namespace ROMVault
             if (result != Settings.rvSettings.FixDatOutPath)
             {
                 Settings.rvSettings.FixDatOutPath = result;
-                Settings.WriteConfig(Settings.rvSettings);
+                Settings.WriteConfig();
             }
 
             FixDatReport.RecursiveDatTree(Settings.rvSettings.FixDatOutPath, baseDir, redOnly);
@@ -592,7 +594,7 @@ namespace ROMVault
         private async void updateAllDATsToolStripMenuItem_Click(object sender, RoutedEventArgs e)
         {
             if (_working) return;
-            DatUpdate.CheckAllDats(DB.DirRoot.Child(0), @"DatRoot" + System.IO.Path.DirectorySeparatorChar);
+            DatUpdate.InvalidateAllDATs(DB.DirRoot.Child(0), @"DatRoot" + System.IO.Path.DirectorySeparatorChar);
             await UpdateDats();
         }
 
@@ -750,7 +752,7 @@ namespace ROMVault
         {
             if (e.KeyModifiers.HasFlag(KeyModifiers.Shift))
             {
-                DatUpdate.CheckAllDats(DB.DirRoot.Child(0), @"DatRoot" + System.IO.Path.DirectorySeparatorChar);
+                DatUpdate.InvalidateAllDATs(DB.DirRoot.Child(0), @"DatRoot" + System.IO.Path.DirectorySeparatorChar);
             }
             RootDirsCreate.CheckDatRoot();
             Start();
@@ -805,7 +807,7 @@ namespace ROMVault
             if (Settings.rvSettings.chkBoxShowComplete != val)
             {
                 Settings.rvSettings.chkBoxShowComplete = val;
-                Settings.WriteConfig(Settings.rvSettings);
+                Settings.WriteConfig();
                 DatSetSelected(ctrRvTree.Selected);
             }
         }
@@ -816,7 +818,7 @@ namespace ROMVault
             if (Settings.rvSettings.chkBoxShowPartial != val)
             {
                 Settings.rvSettings.chkBoxShowPartial = val;
-                Settings.WriteConfig(Settings.rvSettings);
+                Settings.WriteConfig();
                 DatSetSelected(ctrRvTree.Selected);
             }
         }
@@ -827,7 +829,7 @@ namespace ROMVault
             if (Settings.rvSettings.chkBoxShowEmpty != val)
             {
                 Settings.rvSettings.chkBoxShowEmpty = val;
-                Settings.WriteConfig(Settings.rvSettings);
+                Settings.WriteConfig();
                 DatSetSelected(ctrRvTree.Selected);
             }
         }
@@ -838,7 +840,7 @@ namespace ROMVault
             if (Settings.rvSettings.chkBoxShowFixes != val)
             {
                 Settings.rvSettings.chkBoxShowFixes = val;
-                Settings.WriteConfig(Settings.rvSettings);
+                Settings.WriteConfig();
                 DatSetSelected(ctrRvTree.Selected);
             }
         }
@@ -849,7 +851,7 @@ namespace ROMVault
             if (Settings.rvSettings.chkBoxShowMIA != val)
             {
                 Settings.rvSettings.chkBoxShowMIA = val;
-                Settings.WriteConfig(Settings.rvSettings);
+                Settings.WriteConfig();
                 DatSetSelected(ctrRvTree.Selected);
             }
         }
@@ -860,7 +862,7 @@ namespace ROMVault
             if (Settings.rvSettings.chkBoxShowMerged != val)
             {
                 Settings.rvSettings.chkBoxShowMerged = val;
-                Settings.WriteConfig(Settings.rvSettings);
+                Settings.WriteConfig();
                 DatSetSelected(ctrRvTree.Selected);
             }
         }
@@ -1145,6 +1147,8 @@ namespace ROMVault
                 e.Cancel = true;
                 return;
             }
+
+            WriteDefaults();
 
             if (_fk != null && _fk.IsVisible)
                 _fk.Close();

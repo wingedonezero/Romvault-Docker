@@ -6,8 +6,8 @@
     <RootNamespace>ROMVault</RootNamespace>
     <AssemblyName>ROMVault37</AssemblyName>
     <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
-    <AssemblyVersion>3.7.4.0</AssemblyVersion>
-    <Version>3.7.4</Version>
+    <AssemblyVersion>3.7.5.0</AssemblyVersion>
+    <Version>3.7.5</Version>
   </PropertyGroup>
 
   <ItemGroup>
@@ -25,6 +25,7 @@
   <ItemGroup>
     <ProjectReference Include="..\DarkAvalonia\DarkAvalonia.csproj" />
     <ProjectReference Include="..\RomVaultCore\RomVaultCore.csproj" />
+    <ProjectReference Include="..\RVUtils\RVUtils.csproj" />
     <ProjectReference Include="..\Compress\Compress.csproj" />
     <ProjectReference Include="..\DATReader\DATReader.csproj" />
     <ProjectReference Include="..\RVIO\RVIO.csproj" />

@@ -120,7 +120,7 @@ namespace ROMVault
 
             Settings.rvSettings.DoNotReportFeedback = chkDoNotReportFeedback.IsChecked == true;
 
-            Settings.WriteConfig(Settings.rvSettings);
+            Settings.WriteConfig();
             Close();
         }
 

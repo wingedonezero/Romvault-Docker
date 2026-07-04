@@ -18,18 +18,43 @@ namespace ROMVault
             // Start with artwork panel hidden
             TabEmuArc.IsVisible = false;
             artworkSplitter.IsVisible = false;
+            splitListArt.ColumnDefinitions[2].Width = GridLength.Auto;
+
+            trbFontSize.ValueChanged += trbFontSize_ValueChanged;
+            trbFontSize2.ValueChanged += trbFontSize2_ValueChanged;
+        }
+
+        private void trbFontSize_ValueChanged(object sender, Avalonia.Controls.Primitives.RangeBaseValueChangedEventArgs e)
+        {
+            // WinForms trackbar value is a point size; Avalonia FontSize is in DIPs (1pt = 4/3 DIP)
+            txtInfo.FontSize = trbFontSize.Value * 4.0 / 3.0;
+            if (trbFontSize2.Value != trbFontSize.Value)
+                trbFontSize2.Value = trbFontSize.Value;
+        }
+
+        private void trbFontSize2_ValueChanged(object sender, Avalonia.Controls.Primitives.RangeBaseValueChangedEventArgs e)
+        {
+            txtInfo2.FontSize = trbFontSize.Value * 4.0 / 3.0;
+            if (trbFontSize.Value != trbFontSize2.Value)
+                trbFontSize.Value = trbFontSize2.Value;
         }
 
         private void ShowArtworkPanel()
         {
+            if (TabEmuArc.IsVisible)
+                artPanelWidth = splitListArt.ColumnDefinitions[2].ActualWidth;
             TabEmuArc.IsVisible = true;
             artworkSplitter.IsVisible = true;
+            splitListArt.ColumnDefinitions[2].Width = new GridLength(artPanelWidth);
         }
 
         private void HideArtworkPanel()
         {
+            if (TabEmuArc.IsVisible)
+                artPanelWidth = splitListArt.ColumnDefinitions[2].ActualWidth;
             TabEmuArc.IsVisible = false;
             artworkSplitter.IsVisible = false;
+            splitListArt.ColumnDefinitions[2].Width = GridLength.Auto;
         }
 
         private void RemoveAllArtworkTabs()

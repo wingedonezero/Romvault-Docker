@@ -335,8 +335,8 @@ namespace ROMVault
             Settings.rvSettings.SetRegExRules();
 
             UpdateGrid();
-            Settings.WriteConfig(Settings.rvSettings);
-            DatUpdate.CheckAllDats(DB.DirRoot.Child(0), _rule.DirKey);
+            Settings.WriteConfig();
+            DatUpdate.InvalidateAllDATs(DB.DirRoot.Child(0), _rule.DirKey);
 
             if (_displayType)
                 Close();
@@ -354,7 +354,7 @@ namespace ROMVault
 
             ChangesMade = true;
 
-            DatUpdate.CheckAllDats(DB.DirRoot.Child(0), datLocation);
+            DatUpdate.InvalidateAllDATs(DB.DirRoot.Child(0), datLocation);
             for (int i = 0; i < Settings.rvSettings.DatRules.Count; i++)
             {
                 if (Settings.rvSettings.DatRules[i].DirKey == datLocation)
@@ -363,7 +363,7 @@ namespace ROMVault
                     i--;
                 }
             }
-            Settings.WriteConfig(Settings.rvSettings);
+            Settings.WriteConfig();
 
             UpdateGrid();
             Close();
@@ -387,7 +387,7 @@ namespace ROMVault
                     }
                     else
                     {
-                        DatUpdate.CheckAllDats(DB.DirRoot.Child(0), datLocation);
+                        DatUpdate.InvalidateAllDATs(DB.DirRoot.Child(0), datLocation);
                         for (int i = 0; i < Settings.rvSettings.DatRules.Count; i++)
                         {
                             if (Settings.rvSettings.DatRules[i].DirKey == datLocation)
@@ -399,7 +399,7 @@ namespace ROMVault
                     }
                 }
             }
-            Settings.WriteConfig(Settings.rvSettings);
+            Settings.WriteConfig();
 
             UpdateGrid();
         }
@@ -462,11 +462,11 @@ namespace ROMVault
                     rule.UseDescriptionAsDirName ||
                     rule.UseIdForName ||
                     rule.CompleteOnly)
-                    DatUpdate.CheckAllDats(DB.DirRoot.Child(0), rule.DirKey);
+                    DatUpdate.InvalidateAllDATs(DB.DirRoot.Child(0), rule.DirKey);
             }
 
             Settings.rvSettings.ResetDatRules();
-            Settings.WriteConfig(Settings.rvSettings);
+            Settings.WriteConfig();
             _rule = Settings.rvSettings.DatRules[0];
             UpdateGrid();
             SetDisplay();

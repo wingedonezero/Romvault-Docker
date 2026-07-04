@@ -20,6 +20,7 @@ namespace ROMVault
         public static string strVersion;
 
         public static MainWindow frmMain;
+        public static string errorReadingSettings;
 
         private static Mutex mutex;
 
@@ -43,8 +44,9 @@ namespace ROMVault
                 return;
             }
 
+            Settings.checkdirs();
             Settings.rvSettings = new Settings();
-            Settings.rvSettings = Settings.SetDefaults(out string errorReadingSettings);
+            Settings.rvSettings = Settings.SetDefaults(out errorReadingSettings);
 
             ReportError.ErrorForm += ShowErrorForm;
             ReportError.Dialog += ShowDialog;

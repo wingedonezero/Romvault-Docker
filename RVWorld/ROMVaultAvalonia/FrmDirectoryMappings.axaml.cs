@@ -202,7 +202,7 @@ namespace ROMVault
                 Settings.rvSettings.DirMappings.Insert(i, _rule);
 
             UpdateGrid();
-            Settings.WriteConfig(Settings.rvSettings);
+            Settings.WriteConfig();
 
             if (_displayType)
                 Close();
@@ -218,7 +218,7 @@ namespace ROMVault
                 return;
             }
 
-            DatUpdate.CheckAllDats(DB.DirRoot.Child(0), datLocation);
+            DatUpdate.InvalidateAllDATs(DB.DirRoot.Child(0), datLocation);
             for (int i = 0; i < Settings.rvSettings.DirMappings.Count; i++)
             {
                 if (Settings.rvSettings.DirMappings[i].DirKey == datLocation)
@@ -228,7 +228,7 @@ namespace ROMVault
                 }
             }
 
-            Settings.WriteConfig(Settings.rvSettings);
+            Settings.WriteConfig();
 
             UpdateGrid();
             Close();
@@ -268,7 +268,7 @@ namespace ROMVault
                     }
                 }
             }
-            Settings.WriteConfig(Settings.rvSettings);
+            Settings.WriteConfig();
 
             UpdateGrid();
         }
@@ -297,7 +297,7 @@ namespace ROMVault
         private void BtnResetAllClick(object sender, RoutedEventArgs e)
         {
             Settings.rvSettings.ResetDirMappings();
-            Settings.WriteConfig(Settings.rvSettings);
+            Settings.WriteConfig();
             _rule = Settings.rvSettings.DirMappings[0];
             UpdateGrid();
             SetDisplay();
