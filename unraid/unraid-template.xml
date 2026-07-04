@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<Container version="2">
+  <Name>romvault</Name>
+  <Repository>ghcr.io/wingedonezero/romvault:latest</Repository>
+  <Registry/>
+  <Network>bridge</Network>
+  <MyIP/>
+  <Shell>bash</Shell>
+  <Privileged>false</Privileged>
+  <Support>https://github.com/wingedonezero/Romvault-Docker</Support>
+  <Project>https://www.romvault.com/</Project>
+  <Overview>RomVault 3.7.5 with a native Linux Avalonia UI, streamed to your browser via KasmVNC. No mono, no Wine - built in-house from source. Drop DATs into appdata/romvault/DatRoot, dump files into your roms ToSort folder, and manage everything from the web UI exactly like the desktop app.</Overview>
+  <Category>Tools:</Category>
+  <WebUI>http://[IP]:[PORT:3000]/</WebUI>
+  <TemplateURL/>
+  <Icon>https://raw.githubusercontent.com/wingedonezero/Romvault-Docker/main/RVWorld/ROMVaultAvalonia/Assets/logo.png</Icon>
+  <ExtraParams>--stop-timeout=30</ExtraParams>
+  <PostArgs/>
+  <CPUset/>
+  <DateInstalled>0</DateInstalled>
+  <DonateText/>
+  <DonateLink/>
+  <Description>RomVault (Avalonia UI) in the browser via KasmVNC. Built in-house from source.</Description>
+  <Networking>
+    <Mode>bridge</Mode>
+  </Networking>
+  <Data/>
+  <Environment/>
+  <Labels/>
+  <Config Name="WebUI Port" Target="3000" Default="3000" Mode="tcp" Description="RomVault web UI (KasmVNC)" Type="Port" Display="always" Required="true" Mask="false">3000</Config>
+  <Config Name="Config (appdata)" Target="/config" Default="/mnt/user/appdata/romvault" Mode="rw" Description="RomVault settings, scan cache and DatRoot (drop your DAT files in DatRoot here)" Type="Path" Display="always" Required="true" Mask="false">/mnt/user/appdata/romvault</Config>
+  <Config Name="Roms" Target="/roms" Default="/mnt/user/media/roms" Mode="rw" Description="Holds RomRoot (sorted sets) and ToSort (dump new files here). Keep both on the same share so fixes are instant moves." Type="Path" Display="always" Required="true" Mask="false">/mnt/user/media/roms</Config>
+  <Config Name="PUID" Target="PUID" Default="99" Mode="" Description="User ID (Unraid = 99)" Type="Variable" Display="always" Required="true" Mask="false">99</Config>
+  <Config Name="PGID" Target="PGID" Default="100" Mode="" Description="Group ID (Unraid = 100)" Type="Variable" Display="always" Required="true" Mask="false">100</Config>
+  <Config Name="TZ" Target="TZ" Default="UTC" Mode="" Description="Timezone" Type="Variable" Display="always" Required="false" Mask="false">America/New_York</Config>
+</Container>
