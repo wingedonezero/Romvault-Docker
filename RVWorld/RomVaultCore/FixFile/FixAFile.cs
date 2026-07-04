@@ -191,7 +191,7 @@ namespace RomVaultCore.FixFile
 
         private static ReturnCode FixFileMoveToCorrupt(RvFile fixFile, out string errorMessage)
         {
-            string corruptDir = Path.Combine(DB.GetToSortPrimary().Name, "Corrupt");
+            string corruptDir = Path.Combine(DB.GetToSortPrimary().FullName, "Corrupt");
             if (!Directory.Exists(corruptDir))
             {
                 Directory.CreateDirectory(corruptDir);

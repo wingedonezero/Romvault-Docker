@@ -112,7 +112,7 @@ namespace RomVaultCore.FixFile
                 return ReturnCode.RescanNeeded;
             }
 
-            string corruptDir = Path.Combine(DB.GetToSortPrimary().Name, "Corrupt");
+            string corruptDir = Path.Combine(DB.GetToSortPrimary().FullName, "Corrupt");
             if (!Directory.Exists(corruptDir))
             {
                 Directory.CreateDirectory(corruptDir);
