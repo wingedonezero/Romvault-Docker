@@ -295,10 +295,16 @@ namespace TrrntZipUIAvalonia
 
             Array.Sort(files);
 
-            Program.ForceReZip = chkForce.IsChecked == true;
-            Program.CheckOnly = chkFix.IsChecked != true;
-            Program.InZip = (zipType)cboInType.SelectedIndex;
-            Program.OutZip = ZipStructureFromUIIndex(cboOutType.SelectedIndex);
+            Settings settings = new Settings
+            {
+                ForceReZip = chkForce.IsChecked == true,
+                CheckOnly = chkFix.IsChecked != true,
+                InZip = (zipType)cboInType.SelectedIndex,
+                OutZip = ZipStructureFromUIIndex(cboOutType.SelectedIndex)
+            };
+
+            for (int i = 0; i < _threads.Count; i++)
+                _threads[i].cProcessZip.tz.settings = settings;
 
             lock (tGrid)
             {
@@ -311,7 +317,7 @@ namespace TrrntZipUIAvalonia
 
             FileCountProcessed = 0;
             scanningForFiles = true;
-            FileAdder pm = new FileAdder(bccFile, files, UpdateFileCount, ProcessFileEndCallback);
+            FileAdder pm = new FileAdder(bccFile, files, UpdateFileCount, ProcessFileEndCallback, settings);
             Thread procT = new Thread(pm.ProcFiles);
             procT.Start();
 
