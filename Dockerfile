@@ -26,7 +26,7 @@ FROM ghcr.io/linuxserver/baseimage-kasmvnc:debianbookworm
 # ICU is the only runtime lib the self-contained .NET app needs that the
 # KasmVNC desktop base doesn't already ship.
 RUN apt-get update \
- && apt-get install -y --no-install-recommends libicu72 \
+ && apt-get install -y --no-install-recommends libicu72 curl \
  && apt-get clean \
  && rm -rf /var/lib/apt/lists/*
 
@@ -36,5 +36,8 @@ COPY --from=build /out /app
 COPY rootfs/ /
 
 EXPOSE 3000
+
+HEALTHCHECK --interval=30s --timeout=10s --start-period=90s \
+  CMD curl -fsS http://localhost:3000/ >/dev/null || exit 1
 
 VOLUME /config
