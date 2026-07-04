@@ -155,6 +155,7 @@ namespace ROMVault
 
             // Attach pointer events for context menus
             GameGrid.AddHandler(PointerReleasedEvent, GameGridPointerReleased, RoutingStrategies.Tunnel);
+            GameGrid.AddHandler(PointerPressedEvent, GameGridPointerPressed, RoutingStrategies.Tunnel);
             RomGrid.AddHandler(PointerReleasedEvent, RomGridPointerReleased, RoutingStrategies.Tunnel);
 
             // Focus DataGrids on pointer enter so mouse wheel scrolling works
@@ -949,7 +950,7 @@ namespace ROMVault
         {
             _working = true;
             _timer1.IsEnabled = true;
-            ctrRvTree.Working = true;
+            ctrRvTree.CoreActive = true;
 
             foreach (var item in menuStrip1.Items)
             {
@@ -981,7 +982,7 @@ namespace ROMVault
         private void Finish()
         {
             _working = false;
-            ctrRvTree.Working = false;
+            ctrRvTree.CoreActive = false;
 
             foreach (var item in menuStrip1.Items)
             {

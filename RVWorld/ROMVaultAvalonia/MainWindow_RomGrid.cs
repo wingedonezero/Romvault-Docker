@@ -70,25 +70,25 @@ namespace ROMVault
 
     public partial class MainWindow
     {
-        private bool altFound = false;
         private RvFile[] romGrid;
         private int romSortIndex = -1;
         private bool romSortAscending = true;
 
+        private bool showAlt;
+        private bool showMerge;
         private bool showStatus;
         private bool showFileModDate;
 
         internal void UpdateRomGrid(RvFile tGame, bool onTimer = false)
         {
-            if (romSortIndex != -1)
+            if (!onTimer)
             {
-                // Reset sort state
+                romSortIndex = -1;
+                romSortAscending = true;
             }
 
-            romSortIndex = -1;
-            romSortAscending = true;
-
-            altFound = false;
+            showMerge = false;
+            showAlt = false;
             showStatus = false;
             showFileModDate = false;
 
@@ -96,20 +96,33 @@ namespace ROMVault
             AddDir(tGame, "", ref fileList);
             romGrid = fileList.ToArray();
 
+            if (RomGrid.Columns.Count > (int)eRomGrid.Merge)
+                RomGrid.Columns[(int)eRomGrid.Merge].IsVisible = showMerge;
+
             // Set visibility of Alt columns
             if (RomGrid.Columns.Count > (int)eRomGrid.AltSize)
-                RomGrid.Columns[(int)eRomGrid.AltSize].IsVisible = altFound;
+                RomGrid.Columns[(int)eRomGrid.AltSize].IsVisible = showAlt;
             if (RomGrid.Columns.Count > (int)eRomGrid.AltCRC32)
-                RomGrid.Columns[(int)eRomGrid.AltCRC32].IsVisible = altFound;
+                RomGrid.Columns[(int)eRomGrid.AltCRC32].IsVisible = showAlt;
             if (RomGrid.Columns.Count > (int)eRomGrid.AltSHA1)
-                RomGrid.Columns[(int)eRomGrid.AltSHA1].IsVisible = altFound;
+                RomGrid.Columns[(int)eRomGrid.AltSHA1].IsVisible = showAlt;
             if (RomGrid.Columns.Count > (int)eRomGrid.AltMD5)
-                RomGrid.Columns[(int)eRomGrid.AltMD5].IsVisible = altFound;
+                RomGrid.Columns[(int)eRomGrid.AltMD5].IsVisible = showAlt;
 
             if (RomGrid.Columns.Count > (int)eRomGrid.Status)
                 RomGrid.Columns[(int)eRomGrid.Status].IsVisible = showStatus;
             if (RomGrid.Columns.Count > (int)eRomGrid.DateModFile)
                 RomGrid.Columns[(int)eRomGrid.DateModFile].IsVisible = showFileModDate;
+
+            try
+            {
+                if (onTimer && romSortIndex >= 0)
+                {
+                    IComparer<RvFile> tSort = new RomUiCompare(romSortIndex, romSortAscending);
+                    Array.Sort(romGrid, tSort);
+                }
+            }
+            catch { }
 
             RebuildRomGridItems();
         }
@@ -155,10 +168,13 @@ namespace ROMVault
                 {
                     tFile.UiDisplayName = pathAdd + tFile.Name;
                     fileList.Add(tFile);
-                    if (!altFound)
-                    {
-                        altFound = (tFile.AltSize != null) || (tFile.AltCRC != null) || (tFile.AltSHA1 != null) || (tFile.AltMD5 != null);
-                    }
+
+                    if (!showMerge)
+                        showMerge = !string.IsNullOrWhiteSpace(tFile.Merge);
+
+                    if (!showAlt)
+                        showAlt = (tFile.AltSize != null) || (tFile.AltCRC != null) || (tFile.AltSHA1 != null) || (tFile.AltMD5 != null);
+
                     showStatus |= !string.IsNullOrWhiteSpace(tFile.Status);
 
                     showFileModDate |=
@@ -184,11 +200,11 @@ namespace ROMVault
                     GotBitmap = BuildRomGotBitmap(tFile),
                     RomName = BuildRomName(tFile),
                     Merge = tFile.Merge ?? "",
-                    Size = SetCell(tFile.Size == null ? "" : ((ulong)tFile.Size).ToString("N0"), tFile, FileStatus.SizeFromDAT, FileStatus.SizeFromHeader, FileStatus.SizeVerified),
+                    Size = SetCell(tFile.Size == null ? "" : ((ulong)tFile.Size).ToRvString(), tFile, FileStatus.SizeFromDAT, FileStatus.SizeFromHeader, FileStatus.SizeVerified),
                     CRC32 = SetCell(tFile.CRC.ToHexString(), tFile, FileStatus.CRCFromDAT, FileStatus.CRCFromHeader, FileStatus.CRCVerified),
                     SHA1 = SetCell(tFile.SHA1.ToHexString(), tFile, FileStatus.SHA1FromDAT, FileStatus.SHA1FromHeader, FileStatus.SHA1Verified),
                     MD5 = SetCell(tFile.MD5.ToHexString(), tFile, FileStatus.MD5FromDAT, FileStatus.MD5FromHeader, FileStatus.MD5Verified),
-                    AltSize = SetCell(tFile.AltSize == null ? "" : ((ulong)tFile.AltSize).ToString("N0"), tFile, FileStatus.AltSizeFromDAT, FileStatus.AltSizeFromHeader, FileStatus.AltSizeVerified),
+                    AltSize = SetCell(tFile.AltSize == null ? "" : ((ulong)tFile.AltSize).ToRvString(), tFile, FileStatus.AltSizeFromDAT, FileStatus.AltSizeFromHeader, FileStatus.AltSizeVerified),
                     AltCRC32 = SetCell(tFile.AltCRC.ToHexString(), tFile, FileStatus.AltCRCFromDAT, FileStatus.AltCRCFromHeader, FileStatus.AltCRCVerified),
                     AltSHA1 = SetCell(tFile.AltSHA1.ToHexString(), tFile, FileStatus.AltSHA1FromDAT, FileStatus.AltSHA1FromHeader, FileStatus.AltSHA1Verified),
                     AltMD5 = SetCell(tFile.AltMD5.ToHexString(), tFile, FileStatus.AltMD5FromDAT, FileStatus.AltMD5FromHeader, FileStatus.AltMD5Verified),
@@ -196,7 +212,7 @@ namespace ROMVault
                     DateModFile = BuildDateModFile(tFile),
                     ZipIndex = tFile.FileType == FileType.FileZip ? (tFile.ZipFileIndex == -1 ? "" : tFile.ZipFileIndex.ToString()) : "",
                     DupeCount = tFile.FileGroup != null ? tFile.FileGroup.Files.Count.ToString() : "",
-                    BackColor = dark.Down(_displayColor[(int)tFile.RepStatus]),
+                    BackColor = dark.Down(_displayColor[(int)ReportStatus.UIStatus(tFile.MIAStatus, tFile.RepStatus)]),
                     ForeColor = _fontColor[(int)tFile.RepStatus]
                 };
 
@@ -208,8 +224,16 @@ namespace ROMVault
         {
             try
             {
-                string bitmapName = "R_" + tFile.DatStatus + "_" + tFile.RepStatus;
-                return rvImages.GetBitmap(bitmapName);
+                string bitPlusMIA = "";
+                if (tFile.MIAStatusIs(MIAStatus.MIA)) bitPlusMIA = "_MIA";
+                else if (tFile.MIAStatusIs(MIAStatus.MIAFromDat)) bitPlusMIA = "_MIA";
+                else if (tFile.MIAStatusIs(MIAStatus.New)) bitPlusMIA = "_NEW";
+
+                string bitmapName = "R_" + tFile.DatStatus + "_" + tFile.RepStatus + bitPlusMIA;
+                Bitmap romIcon = rvImages.GetBitmap(bitmapName);
+                if (romIcon == null)
+                    ReportError.LogOut($"Missing image for {bitmapName}");
+                return romIcon;
             }
             catch { return null; }
         }

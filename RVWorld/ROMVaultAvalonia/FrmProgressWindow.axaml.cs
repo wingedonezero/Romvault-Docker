@@ -211,6 +211,8 @@ namespace ROMVault
                     ForegroundBrush = new SolidColorBrush(Color.FromRgb(255, 0, 0))
                 });
 
+                RVPlayer.PlaySound("audio\\error.wav");
+
                 if (_errorItems.Count > 0)
                 {
                     ErrorGrid.ScrollIntoView(_errorItems[_errorItems.Count - 1], null);
@@ -237,6 +239,8 @@ namespace ROMVault
                 Dispatcher.UIThread.Post(BgwRunWorkerCompleted);
                 return;
             }
+
+            RVPlayer.PlaySound("audio\\complete.wav");
 
             if (_errorOpen)
             {

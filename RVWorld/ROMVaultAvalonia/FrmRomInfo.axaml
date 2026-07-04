@@ -1,7 +1,7 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         x:Class="ROMVault.FrmRomInfo"
-        Title="ROM Info"
+        Title="Rom Occurrence list"
         Width="1000" Height="200"
         WindowStartupLocation="CenterOwner"
 >

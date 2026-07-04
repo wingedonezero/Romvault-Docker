@@ -197,7 +197,7 @@ namespace ROMVault
                         if (l >= 13) columnIndex = l;
                         if (tDirStat.Get(RepairStatus.DisplayOrder[l]) <= 0) continue;
 
-                        int len = DigitLength(tDirStat.Get(RepairStatus.DisplayOrder[l])) * 7 + 26;
+                        int len = DigitLength(tDirStat.Get(RepairStatus.DisplayOrder[l])) * 8 + 26;
                         if (len > _gameGridColumnXPositions[columnIndex])
                             _gameGridColumnXPositions[columnIndex] = len;
 
@@ -305,38 +305,161 @@ namespace ROMVault
                 if (tRvDir.GotStatus != GotStatus.NotGot)
                     bitmapName = GetBitmapFromType(tRvDir.FileType, tRvDir.ZipStruct);
 
-                if (tRvDir.GotStatus == GotStatus.Corrupt && bitmapName != null)
-                    bitmapName += "Corrupt";
+                int colWidth = GetColumnPixelWidth((int)GameGridColumns.CType, 44);
 
-                // Return the primary bitmap
-                if (bitmapNameDat != null && bitmapName != null && bitmapNameDat == bitmapName)
-                    return rvImages.GetBitmap(bitmapName);
-                if (bitmapNameDat != null && bitmapName == null)
-                    return rvImages.GetBitmap(bitmapNameDat + "Missing");
-                if (bitmapName != null)
-                    return rvImages.GetBitmap(bitmapName);
-                if (bitmapNameDat != null)
-                    return rvImages.GetBitmap(bitmapNameDat);
+                int bm0 = -1;
+                int bm1 = -1;
+                int bm2 = -1;
+                if (bitmapNameDat != null && bitmapName != null)
+                {
+                    if (bitmapNameDat == bitmapName)
+                    {
+                        bm0 = colWidth / 2;
+                    }
+                    else
+                    {
+                        bitmapNameDat += "Missing";
+                        bm0 = colWidth / 4 * 3;
+                        bm1 = colWidth / 4;
+                        bm2 = colWidth / 2;
+                    }
+                }
+                else if (bitmapNameDat != null)
+                {
+                    bm0 = colWidth / 2;
+                    bitmapNameDat += "Missing";
+                }
+                else if (bitmapName != null)
+                {
+                    bm1 = colWidth / 2;
+                }
 
-                return null;
+                if (tRvDir.GotStatus == GotStatus.Corrupt) { bitmapName += "Corrupt"; }
+
+                RenderTargetBitmap bmp = new RenderTargetBitmap(new PixelSize(colWidth, 18), new Vector(96, 96));
+                using (DrawingContext g = bmp.CreateDrawingContext())
+                {
+                    if (bm0 != -1)
+                    {
+                        Bitmap bm = rvImages.GetBitmap(bitmapNameDat);
+                        if (bm != null)
+                        {
+                            double xSize = (double)bm.PixelSize.Width / bm.PixelSize.Height * 18;
+                            g.DrawImage(bm, new Rect(0, 0, bm.PixelSize.Width, bm.PixelSize.Height), new Rect(bm0 - xSize / 2, 0, xSize, 18));
+                        }
+                        else
+                        {
+                            Debug.WriteLine("Missing Graphic for " + bitmapNameDat);
+                        }
+                    }
+
+                    if (bm1 != -1)
+                    {
+                        Bitmap bm = rvImages.GetBitmap(bitmapName);
+                        if (bm != null)
+                        {
+                            double xSize = (double)bm.PixelSize.Width / bm.PixelSize.Height * 18;
+                            g.DrawImage(bm, new Rect(0, 0, bm.PixelSize.Width, bm.PixelSize.Height), new Rect(bm1 - xSize / 2, 0, xSize, 18));
+                        }
+                        else
+                        {
+                            Debug.WriteLine("Missing Graphic for " + bitmapName);
+                        }
+                    }
+
+                    if (bm2 != -1)
+                    {
+                        Bitmap bm = rvImages.GetBitmap(tRvDir.ZipDatStructFix ? "ZipConvert" : "ZipConvert1");
+                        if (bm != null)
+                        {
+                            double xSize = (double)bm.PixelSize.Width / bm.PixelSize.Height * 18;
+                            g.DrawImage(bm, new Rect(0, 0, bm.PixelSize.Width, bm.PixelSize.Height), new Rect(bm2 - xSize / 2, 0, xSize, 18));
+                        }
+                    }
+                }
+
+                return bmp;
             }
             catch { return null; }
+        }
+
+        private int GetColumnPixelWidth(int columnIndex, int fallback)
+        {
+            try
+            {
+                if (GameGrid.Columns.Count <= columnIndex)
+                    return fallback;
+                DataGridColumn col = GameGrid.Columns[columnIndex];
+                if (!double.IsNaN(col.ActualWidth) && col.ActualWidth > 0)
+                    return (int)col.ActualWidth;
+                if (col.Width.IsAbsolute && col.Width.Value > 0)
+                    return (int)col.Width.Value;
+                return fallback;
+            }
+            catch { return fallback; }
         }
 
         private Bitmap BuildStatusBitmap(RvFile tRvDir)
         {
             try
             {
-                // For status column, just return first relevant status icon
-                ReportStatus tDirStat = tRvDir.DirStatus;
-                for (int l = 0; l < RepairStatus.DisplayOrder.Length; l++)
+                int colWidth = GetColumnPixelWidth((int)GameGridColumns.CRomStatus, 200);
+
+                RenderTargetBitmap bmp = new RenderTargetBitmap(new PixelSize(colWidth, 18), new Vector(96, 96));
+                using (DrawingContext g = bmp.CreateDrawingContext())
                 {
-                    if (tDirStat.Get(RepairStatus.DisplayOrder[l]) > 0)
+                    g.FillRectangle(new SolidColorBrush(dark.bgColor1(Colors.White)), new Rect(0, 0, colWidth, 18));
+
+                    Typeface drawFont = new Typeface("Arial");
+
+                    int gOff;
+                    int columnIndex = 0;
+                    for (int l = 0; l < RepairStatus.DisplayOrder.Length; l++)
                     {
-                        return rvImages.GetBitmap("G_" + RepairStatus.DisplayOrder[l]);
+                        if (l >= 13)
+                            columnIndex = l;
+
+                        if (tRvDir.DirStatus.Get(RepairStatus.DisplayOrder[l]) <= 0)
+                            continue;
+
+                        gOff = _gameGridColumnXPositions[columnIndex];
+                        Bitmap bmg = rvImages.GetBitmap(@"G_" + RepairStatus.DisplayOrder[l]);
+                        if (bmg != null)
+                        {
+                            g.DrawImage(bmg, new Rect(0, 0, bmg.PixelSize.Width, bmg.PixelSize.Height), new Rect(gOff, 0, 21, 18));
+                        }
+                        else
+                        {
+                            Debug.WriteLine("Missing Graphics for " + "G_" + RepairStatus.DisplayOrder[l]);
+                        }
+
+                        columnIndex++;
+                    }
+
+                    columnIndex = 0;
+                    for (int l = 0; l < RepairStatus.DisplayOrder.Length; l++)
+                    {
+                        if (l >= 13)
+                            columnIndex = l;
+
+                        if (tRvDir.DirStatus.Get(RepairStatus.DisplayOrder[l]) > 0)
+                        {
+                            gOff = _gameGridColumnXPositions[columnIndex];
+                            // WinForms draws with Arial 9pt; 9pt = 12 DIP
+                            FormattedText countText = new FormattedText(
+                                tRvDir.DirStatus.Get(RepairStatus.DisplayOrder[l]).ToRvString(),
+                                CultureInfo.InvariantCulture,
+                                FlowDirection.LeftToRight,
+                                drawFont,
+                                12,
+                                dark.fgBrush(Brushes.Black));
+                            g.DrawText(countText, new Point(gOff + 20, 3));
+                            columnIndex++;
+                        }
                     }
                 }
-                return null;
+
+                return bmp;
             }
             catch { return null; }
         }
@@ -384,6 +507,8 @@ namespace ROMVault
                     if (zs == ZipStructure.ZipTrrnt) return "ZipTrrnt";
                     if (zs == ZipStructure.ZipTDC) return "ZipTDC";
                     if (zs == ZipStructure.ZipZSTD) return "ZipZSTD";
+                    if (zs == ZipStructure.ZipDTD) return "ZipDTD";
+                    if (zs == ZipStructure.ZipDTZ) return "ZipDTZ";
                     return null;
                 case FileType.SevenZip:
                     if (zs == ZipStructure.None) return "SevenZip";
@@ -753,6 +878,25 @@ namespace ROMVault
                 }
             }
             catch { }
+        }
+
+        internal void GameGridPointerPressed(object sender, PointerPressedEventArgs e)
+        {
+            if (_updatingGameGrid)
+                return;
+            if (e.ClickCount != 2)
+                return;
+            if (!e.GetCurrentPoint(GameGrid).Properties.IsRightButtonPressed)
+                return;
+
+            // Right-button double-click: navigate up to the parent directory
+            RvFile tParent = gameGridSource?.Parent;
+            if (tParent == null)
+                return;
+            UpdateGameGrid(tParent);
+            ctrRvTree.SetSelected(tParent);
+            UpdateDatMetaData(tParent);
+            e.Handled = true;
         }
 
         private void GameGridMouseDoubleClick(object sender, TappedEventArgs e)

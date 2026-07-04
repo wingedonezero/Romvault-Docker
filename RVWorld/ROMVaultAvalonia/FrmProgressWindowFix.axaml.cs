@@ -212,6 +212,8 @@ namespace ROMVault
             // Do one final timer tick to flush any remaining rows
             Timer1Tick(null, null);
 
+            RVPlayer.PlaySound("audio\\complete.wav");
+
             if (!_closeOnExit)
             {
                 cancelButton.Content = "Close";
