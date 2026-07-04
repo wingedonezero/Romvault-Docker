@@ -15,3 +15,7 @@ fi
 
 lsiown -R abc:abc /config
 lsiown abc:abc /roms /roms/RomRoot /roms/ToSort
+
+# The drop folders must be writable over SMB by any member of the share group
+# (unraid users are in 'users'), not just the container user.
+chmod 775 /config /config/config /config/DatRoot /roms /roms/RomRoot /roms/ToSort 2>/dev/null || true
