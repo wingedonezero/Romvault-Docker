@@ -52,7 +52,7 @@ namespace RomVaultCore.FixFile
                 ReturnCode moveReturnCode = FixAZipFunctions.MoveZipToCorrupt(fixZip, out errorMessage);
                 if (moveReturnCode != ReturnCode.Good)
                 {
-                    errorMessage = $@"Move Zip To Corrupt Error with {moveReturnCode}";
+                    errorMessage = $@"Move Zip To Corrupt Error with {moveReturnCode}: {errorMessage}";
                     return moveReturnCode;
                 }
             }
