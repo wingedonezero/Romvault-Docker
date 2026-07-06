@@ -31,16 +31,16 @@ window.rvOpenUrl = (url) => { window.open(url, '_blank', 'noopener'); };
 // Draggable pane splitters. Sizes stored as CSS vars + localStorage so the
 // layout survives reloads (the web equivalent of screenpos.xml).
 (() => {
-    const KEYS = ['--w-left', '--h-gamegrid', '--w-art'];
-    for (const k of KEYS) {
-        const v = localStorage.getItem('rv' + k);
-        if (v) document.documentElement.style.setProperty(k, v);
+    for (let i = 0; i < localStorage.length; i++) {
+        const k = localStorage.key(i);
+        if (k && k.startsWith('rv--'))
+            document.documentElement.style.setProperty(k.substring(2), localStorage.getItem(k));
     }
     let drag = null;
     document.addEventListener('pointerdown', (e) => {
-        const s = e.target.closest('.splitter');
+        const s = e.target.closest('.splitter, .col-resize');
         if (!s) return;
-        const target = document.querySelector(s.dataset.target);
+        const target = s.classList.contains('col-resize') ? s.parentElement : document.querySelector(s.dataset.target);
         if (!target) return;
         const axis = s.dataset.axis;
         const rect = target.getBoundingClientRect();
@@ -59,7 +59,7 @@ window.rvOpenUrl = (url) => { window.open(url, '_blank', 'noopener'); };
         if (!drag) return;
         let delta = (drag.axis === 'x' ? e.clientX : e.clientY) - drag.start;
         if (drag.invert) delta = -delta;
-        const val = Math.max(80, drag.startVal + delta) + 'px';
+        const val = Math.max(drag.el.classList.contains('col-resize') ? 30 : 80, drag.startVal + delta) + 'px';
         document.documentElement.style.setProperty(drag.varName, val);
         localStorage.setItem('rv' + drag.varName, val);
     });
