@@ -386,7 +386,23 @@ else
         _refreshTimer.Start();
     }
 
-    private void Refresh() => InvokeAsync(StateHasChanged);
+    // Coalesce renders: high-frequency progress notifications during a scan/fix
+    // would otherwise queue thousands of full-page (whole-tree) re-renders and
+    // back up the circuit, making clicks (e.g. Close) wait minutes. Never keep
+    // more than one render pending; bursts collapse into one render of the
+    // latest state.
+    private volatile bool _renderPending;
+    private void Refresh()
+    {
+        if (_renderPending)
+            return;
+        _renderPending = true;
+        InvokeAsync(() =>
+        {
+            _renderPending = false;
+            StateHasChanged();
+        });
+    }
 
     public void Dispose()
     {
