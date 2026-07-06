@@ -99,16 +99,19 @@ namespace RomVaultCore.FixFile
         {
             errorMessage = "";
 
-            string fixZipFullName = fixZip.FullName;
+            // Use FullNameCase (the actual on-disk name) not FullName (the DAT
+            // canonical name): on case-sensitive filesystems they can differ and
+            // File operations must target the real file.
+            string fixZipFullName = fixZip.FullNameCase;
             if (!File.Exists(fixZipFullName))
             {
-                errorMessage = "File for move to corrupt not found " + fixZip.FullName;
+                errorMessage = "File for move to corrupt not found " + fixZip.FullNameCase;
                 return ReturnCode.RescanNeeded;
             }
             FileInfo fi = new FileInfo(fixZipFullName);
             if (fi.LastWriteTime != fixZip.FileModTimeStamp)
             {
-                errorMessage = "File for move to corrupt timestamp not correct " + fixZip.FullName;
+                errorMessage = "File for move to corrupt timestamp not correct " + fixZip.FullNameCase;
                 return ReturnCode.RescanNeeded;
             }
 
@@ -127,8 +130,8 @@ namespace RomVaultCore.FixFile
                 indexcorrupt = toSort.ChildAdd(corruptDirNew);
             }
 
-            string toSortFullName = Path.Combine(corruptDir, fixZip.Name);
-            string toSortFileName = fixZip.Name;
+            string toSortFullName = Path.Combine(corruptDir, fixZip.NameCase);
+            string toSortFileName = fixZip.NameCase;
             int fileC = 0;
             while (File.Exists(toSortFullName))
             {
