@@ -23,10 +23,12 @@ RUN dotnet publish ROMVaultAvalonia/ROMVaultAvalonia.csproj \
 
 FROM ghcr.io/linuxserver/baseimage-kasmvnc:debianbookworm
 
-# ICU is the only runtime lib the self-contained .NET app needs that the
+# libicu: the only runtime lib the self-contained .NET app needs that the
 # KasmVNC desktop base doesn't already ship.
+# fonts-noto-cjk: Japanese/Chinese/Korean glyphs for ROM names in the UI
+# (the base image only ships Latin fonts, so CJK rendered as boxes).
 RUN apt-get update \
- && apt-get install -y --no-install-recommends libicu72 curl \
+ && apt-get install -y --no-install-recommends libicu72 curl fonts-noto-cjk \
  && apt-get clean \
  && rm -rf /var/lib/apt/lists/*
 
