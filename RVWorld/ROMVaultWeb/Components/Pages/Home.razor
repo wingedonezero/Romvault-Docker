@@ -162,11 +162,11 @@ else
                             @* ============ game grid ============ *@
                             <div class="grid game-grid" @oncontextmenu:preventDefault>
                                 <div class="grid-head game-cols@(Rv.ShowDescriptionCol ? "" : " no-desc")">
-                                    <span>Type</span>
-                                    <span class="sortable" @onclick="() => Rv.SortGameGrid(1)">Game (Directory / Zip)@(SortGlyph(1))</span>
+                                    <span>Type<span class="col-resize" data-axis="x" data-var="--gg0"></span></span>
+                                    <span class="sortable" @onclick="() => Rv.SortGameGrid(1)">Game (Directory / Zip)@(SortGlyph(1))<span class="col-resize" data-axis="x" data-var="--gg1" @onclick:stopPropagation></span></span>
                                     @if (Rv.ShowDescriptionCol)
-                                    {<span class="sortable" @onclick="() => Rv.SortGameGrid(2)">Description@(SortGlyph(2))</span>}
-                                    <span class="sortable" @onclick="() => Rv.SortGameGrid(3)">Modified@(SortGlyph(3))</span>
+                                    {<span class="sortable" @onclick="() => Rv.SortGameGrid(2)">Description@(SortGlyph(2))<span class="col-resize" data-axis="x" data-var="--gg2" @onclick:stopPropagation></span></span>}
+                                    <span class="sortable" @onclick="() => Rv.SortGameGrid(3)">Modified@(SortGlyph(3))<span class="col-resize" data-axis="x" data-var="--gg3" @onclick:stopPropagation></span></span>
                                     <span>ROM Status</span>
                                 </div>
                                 <div class="grid-body">
@@ -202,13 +202,18 @@ else
                             @* ============ rom grid ============ *@
                             <div class="grid rom-grid">
                                 <div class="grid-head rom-cols" style="@RomColsStyle">
-                                    <span>Got</span><span>ROM (File)</span>
-                                    @if (Rv.RomShowMerge){<span>Merge</span>}
-                                    <span>Size</span><span>CRC32</span><span>SHA1</span><span>MD5</span>
-                                    @if (Rv.RomShowAlt){<span>AltSize</span><span>AltCRC32</span><span>AltSHA1</span><span>AltMD5</span>}
-                                    @if (Rv.RomShowStatus){<span>Status</span>}
-                                    @if (Rv.RomShowDate){<span>Modified</span>}
-                                    <span>Zip</span><span>Dupes</span>
+                                    <span>Got<span class="col-resize" data-axis="x" data-var="--rg-got"></span></span>
+                                    <span>ROM (File)</span>
+                                    @if (Rv.RomShowMerge){<span>Merge<span class="col-resize" data-axis="x" data-var="--rg-merge"></span></span>}
+                                    <span>Size<span class="col-resize" data-axis="x" data-var="--rg-size"></span></span>
+                                    <span>CRC32<span class="col-resize" data-axis="x" data-var="--rg-crc"></span></span>
+                                    <span>SHA1<span class="col-resize" data-axis="x" data-var="--rg-sha1"></span></span>
+                                    <span>MD5<span class="col-resize" data-axis="x" data-var="--rg-md5"></span></span>
+                                    @if (Rv.RomShowAlt){<span>AltSize<span class="col-resize" data-axis="x" data-var="--rg-asize"></span></span><span>AltCRC32<span class="col-resize" data-axis="x" data-var="--rg-acrc"></span></span><span>AltSHA1<span class="col-resize" data-axis="x" data-var="--rg-asha"></span></span><span>AltMD5<span class="col-resize" data-axis="x" data-var="--rg-amd5"></span></span>}
+                                    @if (Rv.RomShowStatus){<span>Status<span class="col-resize" data-axis="x" data-var="--rg-status"></span></span>}
+                                    @if (Rv.RomShowDate){<span>Modified<span class="col-resize" data-axis="x" data-var="--rg-date"></span></span>}
+                                    <span>Zip<span class="col-resize" data-axis="x" data-var="--rg-zip"></span></span>
+                                    <span>Dupes</span>
                                 </div>
                                 <div class="grid-body">
                                     <Virtualize Items="Rv.RomRows" ItemSize="22" Context="row">
@@ -414,13 +419,13 @@ else
     {
         get
         {
-            List<string> cols = new() { "44px", "minmax(220px,2fr)" };
-            if (Rv.RomShowMerge) cols.Add("90px");
-            cols.AddRange(new[] { "90px", "110px", "130px", "130px" });
-            if (Rv.RomShowAlt) cols.AddRange(new[] { "70px", "110px", "130px", "130px" });
-            if (Rv.RomShowStatus) cols.Add("110px");
-            if (Rv.RomShowDate) cols.Add("150px");
-            cols.AddRange(new[] { "50px", "56px" });
+            List<string> cols = new() { "var(--rg-got,44px)", "minmax(220px,2fr)" };
+            if (Rv.RomShowMerge) cols.Add("var(--rg-merge,90px)");
+            cols.AddRange(new[] { "var(--rg-size,90px)", "var(--rg-crc,110px)", "var(--rg-sha1,130px)", "var(--rg-md5,130px)" });
+            if (Rv.RomShowAlt) cols.AddRange(new[] { "var(--rg-asize,70px)", "var(--rg-acrc,110px)", "var(--rg-asha,130px)", "var(--rg-amd5,130px)" });
+            if (Rv.RomShowStatus) cols.Add("var(--rg-status,110px)");
+            if (Rv.RomShowDate) cols.Add("var(--rg-date,150px)");
+            cols.AddRange(new[] { "var(--rg-zip,50px)", "56px" });
             return "grid-template-columns:" + string.Join(" ", cols);
         }
     }
