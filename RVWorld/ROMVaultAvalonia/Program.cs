@@ -78,23 +78,41 @@ namespace ROMVault
         {
             Avalonia.Threading.Dispatcher.UIThread.Post(() =>
             {
+                var msgText = new Avalonia.Controls.TextBlock
+                {
+                    Text = text,
+                    TextWrapping = Avalonia.Media.TextWrapping.Wrap,
+                    MaxWidth = 460
+                };
+                var okButton = new Avalonia.Controls.Button
+                {
+                    Content = "OK",
+                    MinWidth = 90,
+                    HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Right,
+                    Margin = new Avalonia.Thickness(0, 16, 0, 0)
+                };
+
                 var msgWindow = new Window
                 {
                     Title = caption,
-                    Width = 400,
-                    Height = 150,
+                    // Size to the message instead of a fixed box; the WM was
+                    // maximizing an unsized code-built window to fullscreen.
+                    SizeToContent = Avalonia.Controls.SizeToContent.WidthAndHeight,
+                    MinWidth = 320,
+                    MaxWidth = 520,
+                    CanResize = false,
+                    ShowInTaskbar = false,
                     WindowStartupLocation = Avalonia.Controls.WindowStartupLocation.CenterOwner,
+                    Background = new Avalonia.Media.SolidColorBrush(
+                        dark.darkEnabled ? Avalonia.Media.Color.FromRgb(0x1F, 0x1F, 0x1F)
+                                         : Avalonia.Media.Colors.White),
                     Content = new Avalonia.Controls.StackPanel
                     {
                         Margin = new Avalonia.Thickness(16),
-                        Children =
-                        {
-                            new Avalonia.Controls.TextBlock { Text = text, TextWrapping = Avalonia.Media.TextWrapping.Wrap },
-                            new Avalonia.Controls.Button { Content = "OK", HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Right, Margin = new Avalonia.Thickness(0, 16, 0, 0) }
-                        }
+                        Children = { msgText, okButton }
                     }
                 };
-                ((Avalonia.Controls.Button)((Avalonia.Controls.StackPanel)msgWindow.Content).Children[1]).Click += (s, e) => msgWindow.Close();
+                okButton.Click += (s, e) => msgWindow.Close();
                 if (frmMain != null)
                     msgWindow.ShowDialog(frmMain);
                 else
