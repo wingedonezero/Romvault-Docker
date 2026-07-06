@@ -1,0 +1,54 @@
+@* The FrmProgressWindowFix equivalent: virtualized grid of fix actions. *@
+
+@if (Model.Visible)
+{
+    <div class="overlay">
+        <div class="dialog fix-dlg">
+            <div class="dlg-title">Fixing - @Percent% complete</div>
+            <div class="dlg-body">
+                <div class="prog-label">@Model.Label1</div>
+                <progress max="@Model.Bar1Max" value="@Model.Bar1"></progress>
+                <div class="fix-grid">
+                    <div class="fix-head">
+                        <span>Directory (Fixing)</span><span>Archive</span><span>File</span>
+                        <span>Size</span><span>Status</span>
+                        <span>Directory (From)</span><span>Archive</span><span>File</span>
+                    </div>
+                    <div class="fix-body">
+                        <Virtualize Items="Model.RowsSnapshot()" ItemSize="20" Context="row">
+                            <div class="fix-row">
+                                <span title="@row.FixDir">@row.FixDir</span>
+                                <span title="@row.FixZip">@row.FixZip</span>
+                                <span title="@row.FixFile">@row.FixFile</span>
+                                <span class="num">@row.Size</span>
+                                <span>@row.Dir</span>
+                                <span title="@row.SourceDir">@row.SourceDir</span>
+                                <span title="@row.SourceZip">@row.SourceZip</span>
+                                <span title="@row.SourceFile">@row.SourceFile</span>
+                            </div>
+                        </Virtualize>
+                    </div>
+                    @foreach (string err in Model.ErrorsSnapshot())
+                    {
+                        <div class="error-row err"><span>@err</span></div>
+                    }
+                </div>
+            </div>
+            <div class="dlg-buttons">
+                @if (Model.Finished)
+                {
+                    <button @onclick="Model.Close">Close</button>
+                }
+                else
+                {
+                    <button disabled="@Model.Cancelled" @onclick="Model.Cancel">@(Model.Cancelled ? "Cancelling" : "Cancel")</button>
+                }
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter] public FixProgressModel Model { get; set; }
+    private int Percent => Model.Bar1Max > 0 ? (int)(Model.Bar1 * 100 / Model.Bar1Max) : 0;
+}

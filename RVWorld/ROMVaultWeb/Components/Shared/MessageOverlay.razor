@@ -1,0 +1,35 @@
+@* ReportError.Dialog / ReportError.ErrorForm messages as modal dialogs. *@
+
+@if (Current.HasValue)
+{
+    <div class="overlay">
+        <div class="dialog msg-dlg @(Current.Value.IsError ? "error" : "")">
+            <div class="dlg-title">@Current.Value.Caption</div>
+            <div class="dlg-body">
+                <pre class="msg-text">@Current.Value.Text</pre>
+            </div>
+            <div class="dlg-buttons">
+                <button @onclick="Dismiss">OK</button>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter] public RvApp Rv { get; set; }
+
+    private (string Text, string Caption, bool IsError)? Current
+    {
+        get { lock (Rv.Messages) return Rv.Messages.Count > 0 ? Rv.Messages[0] : null; }
+    }
+
+    private void Dismiss()
+    {
+        lock (Rv.Messages)
+        {
+            if (Rv.Messages.Count > 0)
+                Rv.Messages.RemoveAt(0);
+        }
+        Rv.Notify();
+    }
+}

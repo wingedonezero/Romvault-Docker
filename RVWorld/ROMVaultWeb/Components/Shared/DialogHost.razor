@@ -1,0 +1,460 @@
+@using RomVaultCore.ReadDat
+@using RomVaultCore.Utils
+@using System.IO
+
+@* Settings / Directory Dat Rules / Directory Mappings / Add ToSort /
+   Color Key / About as in-page modals. *@
+
+@if (_open == "settings")
+{
+    <div class="overlay">
+        <div class="dialog set-dlg">
+            <div class="dlg-title">RomVault Settings</div>
+            <div class="dlg-body form-grid">
+                <label>DAT Root:</label>
+                <input @bind="_datRoot" />
+                <label>Fixing Level:</label>
+                <select @bind="_fixLevel">
+                    <option value="0">Level 1 - Fast copy Match on CRC</option>
+                    <option value="1">Level 2 - Fast copy if SHA1 scanned</option>
+                    <option value="2">Level 3 - Uncompress/Hash/Compress</option>
+                </select>
+                <label>Files to ignore and delete:</label>
+                <textarea rows="6" @bind="_ignoreFiles"></textarea>
+                <label></label><label class="chk"><input type="checkbox" @bind="_darkness" /> Dark Theme (reload page to apply)</label>
+                <label></label><label class="chk"><input type="checkbox" @bind="_doubleCheckDelete" /> Double Check Delete</label>
+                <label></label><label class="chk"><input type="checkbox" @bind="_detailedReporting" /> Detailed Fix Reporting</label>
+                <label></label><label class="chk"><input type="checkbox" @bind="_debugLogs" /> Debug Logs Enabled</label>
+                <label></label><label class="chk"><input type="checkbox" @bind="_cacheTimer" /> Save Cache during scanning/fixing</label>
+                <label>Cache save period (minutes):</label>
+                <input type="number" min="1" max="120" @bind="_cachePeriod" />
+                <label></label><label class="chk"><input type="checkbox" @bind="_miaCallback" /> Send Found MIA to RomVault.com</label>
+                <label></label><label class="chk"><input type="checkbox" @bind="_miaAnon" /> Send Found MIA Anonymously</label>
+                <label></label><label class="chk"><input type="checkbox" @bind="_noFeedback" /> Do not report feedback</label>
+                <label></label><label class="chk"><input type="checkbox" @bind="_deleteOldCue" /> Delete Old Cue Files</label>
+            </div>
+            <div class="dlg-buttons">
+                <button class="primary" @onclick="SaveSettings">OK</button>
+                <button @onclick="Close">Cancel</button>
+            </div>
+        </div>
+    </div>
+}
+
+@if (_open == "dirrules")
+{
+    <div class="overlay">
+        <div class="dialog rules-dlg">
+            <div class="dlg-title">Directory Dat Rules</div>
+            <div class="dlg-body">
+                <div class="rules-list">
+                    @foreach (DatRule r in Settings.rvSettings.DatRules)
+                    {
+                        <div class="rules-row @(r == _rule ? "selected" : "")" @onclick="() => SelectRule(r)">
+                            <span>@r.DirKey</span>
+                            <span>@r.Compression / @r.CompressionSub</span>
+                            <span>@r.Merge</span>
+                        </div>
+                    }
+                </div>
+                <div class="form-grid">
+                    <label>Directory Key:</label>
+                    <input @bind="_ruleKey" />
+                    <label>Archive Type:</label>
+                    <select @bind="_ruleCompression">
+                        <option value="File">Uncompressed</option>
+                        <option value="Zip">Zip</option>
+                        <option value="SevenZip">SevenZip</option>
+                    </select>
+                    <label>Archive Structure:</label>
+                    <select @bind="_ruleCompressionSub">
+                        @foreach (var zs in _zipStructures)
+                        {
+                            <option value="@zs">@zs</option>
+                        }
+                    </select>
+                    <label></label><label class="chk"><input type="checkbox" @bind="_ruleCompOverride" /> Override DAT archive type</label>
+                    <label></label><label class="chk"><input type="checkbox" @bind="_ruleConvert" /> Convert While Fixing</label>
+                    <label>Merge Type:</label>
+                    <select @bind="_ruleMerge">
+                        <option value="None">None (Split)</option>
+                        <option value="Split">Split</option>
+                        <option value="Merge">Merged</option>
+                        <option value="NonMerged">Non Merged</option>
+                    </select>
+                    <label></label><label class="chk"><input type="checkbox" @bind="_ruleMergeOverride" /> Override DAT merge type</label>
+                    <label>Filter:</label>
+                    <select @bind="_ruleFilter">
+                        <option value="KeepAll">ROMs &amp; CHDs</option>
+                        <option value="RomsOnly">ROMs Only</option>
+                        <option value="CHDsOnly">CHDs Only</option>
+                    </select>
+                    <label>Header Type:</label>
+                    <select @bind="_ruleHeader">
+                        <option value="Optional">Optional</option>
+                        <option value="Headered">Headered</option>
+                        <option value="Headerless">Headerless</option>
+                    </select>
+                    <label></label><label class="chk"><input type="checkbox" @bind="_ruleSingleArchive" /> Single Archive per game set</label>
+                    <label></label><label class="chk"><input type="checkbox" @bind="_ruleMultiDatOverride" /> Multi DAT Dir Override</label>
+                    <label></label><label class="chk"><input type="checkbox" @bind="_ruleUseDescription" /> Use Description as Dir Name</label>
+                    <label></label><label class="chk"><input type="checkbox" @bind="_ruleCompleteOnly" /> Complete Sets Only</label>
+                    <label>Ignore Files:</label>
+                    <textarea rows="3" @bind="_ruleIgnore"></textarea>
+                </div>
+            </div>
+            <div class="dlg-buttons">
+                <button class="primary" @onclick="ApplyRule">Apply Rule</button>
+                <button @onclick="DeleteRule" disabled="@(_ruleKey == "RomVault")">Delete Rule</button>
+                <button @onclick="Close">Close</button>
+            </div>
+        </div>
+    </div>
+}
+
+@if (_open == "dirmappings")
+{
+    <div class="overlay">
+        <div class="dialog map-dlg">
+            <div class="dlg-title">Directory Mappings</div>
+            <div class="dlg-body">
+                <div class="rules-list">
+                    @foreach (DirMapping m in Settings.rvSettings.DirMappings)
+                    {
+                        <div class="rules-row @(m == _mapping ? "selected" : "") @(string.IsNullOrEmpty(m.DirPath) || RVIO.Directory.Exists(m.DirPath) ? "" : "err")"
+                             @onclick="() => SelectMapping(m)">
+                            <span>@m.DirKey</span>
+                            <span>@m.DirPath</span>
+                        </div>
+                    }
+                </div>
+                <div class="form-grid">
+                    <label>Tree Key:</label>
+                    <input @bind="_mapKey" />
+                    <label>Physical Location:</label>
+                    <input @bind="_mapPath" placeholder="/roms/..." />
+                </div>
+            </div>
+            <div class="dlg-buttons">
+                <button class="primary" @onclick="ApplyMapping">Apply Mapping</button>
+                <button @onclick="DeleteMapping" disabled="@(_mapKey == "RomVault" || _mapKey == "ToSort")">Delete</button>
+                <button @onclick="Close">Close</button>
+            </div>
+        </div>
+    </div>
+}
+
+@if (_open == "addtosort")
+{
+    <div class="overlay">
+        <div class="dialog tosort-dlg">
+            <div class="dlg-title">Add ToSort Folder</div>
+            <div class="dlg-body">
+                <div class="folder-browser">
+                    <div class="folder-path">@_browsePath</div>
+                    <div class="folder-list">
+                        @if (BrowseParent != null)
+                        {
+                            <div class="folder-item" @onclick="() => Browse(BrowseParent)">⬑ ..</div>
+                        }
+                        @foreach (string d in BrowseDirs)
+                        {
+                            <div class="folder-item" @onclick="() => Browse(d)">📁 @System.IO.Path.GetFileName(d)</div>
+                        }
+                    </div>
+                </div>
+            </div>
+            <div class="dlg-buttons">
+                <button class="primary" @onclick="AddToSort">Add "@_browsePath"</button>
+                <button @onclick="Close">Cancel</button>
+            </div>
+        </div>
+    </div>
+}
+
+@if (_open == "colorkey")
+{
+    <div class="overlay">
+        <div class="dialog key-dlg">
+            <div class="dlg-title">Color Key to ROM Status</div>
+            <div class="dlg-body key-body">
+                @foreach (var st in _keyStatuses)
+                {
+                    <div class="key-row">
+                        <span class="key-swatch" style="background:@StatusColors.BackColor(st.Key, false)"></span>
+                        <img src="img/G_@(st.Key).png" onerror="this.style.display='none'" />
+                        <span class="key-name">@st.Key</span>
+                        <span class="key-desc">@st.Desc</span>
+                    </div>
+                }
+            </div>
+            <div class="dlg-buttons"><button @onclick="Close">Close</button></div>
+        </div>
+    </div>
+}
+
+@if (_open == "about")
+{
+    <div class="overlay">
+        <div class="dialog about-dlg">
+            <div class="dlg-title">About RomVault</div>
+            <div class="dlg-body about-body">
+                <img src="img/logo.png" alt="RomVault" />
+                <div>Version @Program.strVersion</div>
+                <div>ROMVault is written by Gordon J.</div>
+                <a href="https://www.romvault.com/" target="_blank">www.romvault.com</a>
+                <a href="http://paypal.me/romvault" target="_blank">Donate via PayPal</a>
+                <div class="about-web">Web UI for the RomVault Docker build</div>
+            </div>
+            <div class="dlg-buttons"><button @onclick="Close">Close</button></div>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter] public RvApp Rv { get; set; }
+
+    private string _open;
+
+    public void Open(string name, string arg = null)
+    {
+        _open = name;
+        switch (name)
+        {
+            case "settings": LoadSettings(); break;
+            case "dirrules":
+                DatRule pre = null;
+                if (!string.IsNullOrEmpty(arg))
+                    pre = Settings.rvSettings.DatRules.FirstOrDefault(r => r.DirKey == arg);
+                SelectRule(pre ?? Settings.rvSettings.DatRules.FirstOrDefault(r => r.DirKey == "RomVault") ?? Settings.rvSettings.DatRules.FirstOrDefault());
+                if (pre == null && !string.IsNullOrEmpty(arg))
+                    _ruleKey = arg;   // creating a new rule for this tree dir
+                break;
+            case "dirmappings":
+                DirMapping mpre = null;
+                if (!string.IsNullOrEmpty(arg))
+                    mpre = Settings.rvSettings.DirMappings.FirstOrDefault(m => m.DirKey == arg);
+                SelectMapping(mpre ?? Settings.rvSettings.DirMappings.FirstOrDefault());
+                if (mpre == null && !string.IsNullOrEmpty(arg))
+                    _mapKey = arg;    // creating a new mapping for this tree dir
+                break;
+            case "addtosort": Browse("/roms"); break;
+        }
+        StateHasChanged();
+    }
+
+    private void Close() { _open = null; StateHasChanged(); }
+
+    // ----------------------------- settings -----------------------------
+    private string _datRoot, _ignoreFiles;
+    private int _fixLevel;
+    private bool _darkness, _doubleCheckDelete, _detailedReporting, _debugLogs, _cacheTimer;
+    private int _cachePeriod;
+    private bool _miaCallback, _miaAnon, _noFeedback, _deleteOldCue;
+
+    private void LoadSettings()
+    {
+        Settings s = Settings.rvSettings;
+        _datRoot = s.DatRoot;
+        _fixLevel = (int)s.FixLevel;
+        _ignoreFiles = string.Join("\n", s.IgnoreFiles ?? new List<string>());
+        _darkness = s.Darkness;
+        _doubleCheckDelete = s.DoubleCheckDelete;
+        _detailedReporting = s.DetailedFixReporting;
+        _debugLogs = s.DebugLogsEnabled;
+        _cacheTimer = s.CacheSaveTimerEnabled;
+        _cachePeriod = s.CacheSaveTimePeriod;
+        _miaCallback = s.MIACallback;
+        _miaAnon = s.MIAAnon;
+        _noFeedback = s.DoNotReportFeedback;
+        _deleteOldCue = s.DeleteOldCueFiles;
+    }
+
+    private void SaveSettings()
+    {
+        Settings s = Settings.rvSettings;
+        s.DatRoot = _datRoot;
+        s.FixLevel = (EFixLevel)_fixLevel;
+        s.IgnoreFiles = _ignoreFiles.Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).ToList();
+        s.Darkness = _darkness;
+        s.DoubleCheckDelete = _doubleCheckDelete;
+        s.DetailedFixReporting = _detailedReporting;
+        s.DebugLogsEnabled = _debugLogs;
+        s.CacheSaveTimerEnabled = _cacheTimer;
+        s.CacheSaveTimePeriod = _cachePeriod;
+        s.MIACallback = _miaCallback;
+        s.MIAAnon = _miaAnon;
+        s.DoNotReportFeedback = _noFeedback;
+        s.DeleteOldCueFiles = _deleteOldCue;
+        s.SetRegExRules();
+        Settings.WriteConfig();
+        Close();
+        Rv.Notify();
+    }
+
+    // ---------------------------- dir rules -----------------------------
+    private static readonly string[] _zipStructures = { "None", "ZipTrrnt", "ZipTDC", "ZipZSTD", "SevenZipTrrnt", "SevenZipSLZMA", "SevenZipNLZMA", "SevenZipSZSTD", "SevenZipNZSTD" };
+    private DatRule _rule;
+    private string _ruleKey, _ruleCompression, _ruleCompressionSub, _ruleMerge, _ruleFilter, _ruleHeader, _ruleIgnore;
+    private bool _ruleCompOverride, _ruleConvert, _ruleMergeOverride, _ruleSingleArchive, _ruleMultiDatOverride, _ruleUseDescription, _ruleCompleteOnly;
+
+    private void SelectRule(DatRule r)
+    {
+        _rule = r;
+        if (r == null) return;
+        _ruleKey = r.DirKey;
+        _ruleCompression = r.Compression.ToString();
+        _ruleCompressionSub = r.CompressionSub.ToString();
+        _ruleCompOverride = r.CompressionOverrideDAT;
+        _ruleConvert = r.ConvertWhileFixing;
+        _ruleMerge = r.Merge.ToString();
+        _ruleMergeOverride = r.MergeOverrideDAT;
+        _ruleFilter = r.Filter.ToString();
+        _ruleHeader = r.HeaderType.ToString();
+        _ruleSingleArchive = r.SingleArchive;
+        _ruleMultiDatOverride = r.MultiDATDirOverride;
+        _ruleUseDescription = r.UseDescriptionAsDirName;
+        _ruleCompleteOnly = r.CompleteOnly;
+        _ruleIgnore = string.Join("\n", r.IgnoreFiles ?? new List<string>());
+    }
+
+    private void ApplyRule()
+    {
+        Settings s = Settings.rvSettings;
+        DatRule rule = s.DatRules.FirstOrDefault(r => r.DirKey == _ruleKey);
+        bool isNew = rule == null;
+        rule ??= new DatRule { DirKey = _ruleKey };
+        rule.Compression = Enum.Parse<FileType>(_ruleCompression);
+        rule.CompressionSub = Enum.Parse<Compress.ZipStructure>(_ruleCompressionSub);
+        rule.CompressionOverrideDAT = _ruleCompOverride;
+        rule.ConvertWhileFixing = _ruleConvert;
+        rule.Merge = Enum.Parse<MergeType>(_ruleMerge);
+        rule.MergeOverrideDAT = _ruleMergeOverride;
+        rule.Filter = Enum.Parse<FilterType>(_ruleFilter);
+        rule.HeaderType = Enum.Parse<HeaderType>(_ruleHeader);
+        rule.SingleArchive = _ruleSingleArchive;
+        rule.MultiDATDirOverride = _ruleMultiDatOverride;
+        rule.UseDescriptionAsDirName = _ruleUseDescription;
+        rule.CompleteOnly = _ruleCompleteOnly;
+        rule.IgnoreFiles = (_ruleIgnore ?? "").Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).ToList();
+        if (isNew)
+        {
+            s.DatRules.Add(rule);
+            s.DatRules.Sort();
+        }
+        s.SetRegExRules();
+        Settings.WriteConfig();
+        DatUpdate.InvalidateAllDATs(DB.DirRoot.Child(0), rule.DirKey);
+        lock (Rv.Messages) Rv.Messages.Add(("Rule applied. Run Update DATs to apply the changes to the tree.", "RomVault", false));
+        SelectRule(rule);
+        Rv.Notify();
+    }
+
+    private void DeleteRule()
+    {
+        if (_rule == null || _rule.DirKey == "RomVault") return;
+        DatUpdate.InvalidateAllDATs(DB.DirRoot.Child(0), _rule.DirKey);
+        Settings.rvSettings.DatRules.Remove(_rule);
+        Settings.WriteConfig();
+        SelectRule(Settings.rvSettings.DatRules.FirstOrDefault());
+        Rv.Notify();
+    }
+
+    // --------------------------- dir mappings ---------------------------
+    private DirMapping _mapping;
+    private string _mapKey, _mapPath;
+
+    private void SelectMapping(DirMapping m)
+    {
+        _mapping = m;
+        _mapKey = m?.DirKey ?? "";
+        _mapPath = m?.DirPath ?? "";
+    }
+
+    private void ApplyMapping()
+    {
+        if (string.IsNullOrWhiteSpace(_mapKey)) return;
+        Settings s = Settings.rvSettings;
+        DirMapping m = s.DirMappings.FirstOrDefault(x => x.DirKey == _mapKey);
+        if (m == null)
+        {
+            m = new DirMapping { DirKey = _mapKey };
+            s.DirMappings.Add(m);
+            s.DirMappings.Sort();
+        }
+        m.DirPath = _mapPath;
+        Settings.WriteConfig();
+        DatUpdate.InvalidateAllDATs(DB.DirRoot.Child(0), _mapKey);
+        lock (Rv.Messages) Rv.Messages.Add(("Mapping applied. Run Update DATs to apply the changes.", "RomVault", false));
+        SelectMapping(m);
+        Rv.Notify();
+    }
+
+    private void DeleteMapping()
+    {
+        if (_mapping == null || _mapping.DirKey == "RomVault" || _mapping.DirKey == "ToSort") return;
+        Settings.rvSettings.DirMappings.Remove(_mapping);
+        Settings.WriteConfig();
+        SelectMapping(Settings.rvSettings.DirMappings.FirstOrDefault());
+        Rv.Notify();
+    }
+
+    // ---------------------------- add tosort ----------------------------
+    private string _browsePath = "/roms";
+    private string BrowseParent => _browsePath == "/" ? null : System.IO.Path.GetDirectoryName(_browsePath);
+    private List<string> BrowseDirs = new();
+
+    private void Browse(string path)
+    {
+        try
+        {
+            _browsePath = string.IsNullOrEmpty(path) ? "/" : path;
+            BrowseDirs = System.IO.Directory.GetDirectories(_browsePath)
+                .Where(d => !System.IO.Path.GetFileName(d).StartsWith('.'))
+                .OrderBy(d => d).ToList();
+        }
+        catch { BrowseDirs = new List<string>(); }
+    }
+
+    private void AddToSort()
+    {
+        RvFile ts = new(FileType.Dir)
+        {
+            Name = _browsePath,
+            DatStatus = DatStatus.InToSort,
+            Tree = new RvTreeRow()
+        };
+        ts.Tree.SetChecked(RvTreeRow.TreeSelect.Locked, false);
+        DB.DirRoot.ChildAdd(ts, DB.DirRoot.ChildCount);
+        RepairStatus.ReportStatusReset(DB.DirRoot);
+        Rv.TreeSelect(ts);
+        DB.Write();
+        Close();
+        Rv.Notify();
+    }
+
+    // ----------------------------- color key ----------------------------
+    private static readonly (string Key, string Desc)[] _keyStatuses =
+    {
+        ("Correct", "File is correct and verified"),
+        ("CorrectMIA", "Correct file that is marked MIA in the DAT"),
+        ("UnScanned", "Not yet scanned"),
+        ("Missing", "File is missing"),
+        ("MissingMIA", "Missing and marked MIA in the DAT"),
+        ("CanBeFixed", "Missing but a fix was found - run Fix ROMs"),
+        ("CanBeFixedMIA", "MIA file that can be fixed"),
+        ("Corrupt", "File is corrupt"),
+        ("CorruptCanBeFixed", "Corrupt but a good copy was found"),
+        ("Unknown", "File is not in any DAT"),
+        ("UnNeeded", "File is not needed here"),
+        ("NotCollected", "Merged rom not collected in this set"),
+        ("InToSort", "File is in a ToSort directory"),
+        ("MoveToSort", "Will be moved out to ToSort"),
+        ("MoveToCorrupt", "Will be moved to ToSort/Corrupt"),
+        ("NeededForFix", "Needed to fix another set"),
+        ("Rename", "Will be renamed"),
+        ("Delete", "Will be deleted"),
+        ("Incomplete", "Set is incomplete (Complete Sets Only)"),
+        ("Ignore", "Ignored by rules"),
+    };
+}
