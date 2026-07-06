@@ -125,6 +125,7 @@ else
                         }
                     </div>
                 </div>
+                <div class="splitter" data-axis="x" data-target=".left-pane" data-var="--w-left" title="Drag to resize"></div>
 
                 @* =================== right: game info, grids =================== *@
                 <div class="right-pane">
@@ -162,10 +163,10 @@ else
                             <div class="grid game-grid" @oncontextmenu:preventDefault>
                                 <div class="grid-head game-cols@(Rv.ShowDescriptionCol ? "" : " no-desc")">
                                     <span>Type</span>
-                                    <span class="sortable" @onclick="() => Rv.SortGameGrid(1)">Game (Directory / Zip)@SortGlyph(1)</span>
+                                    <span class="sortable" @onclick="() => Rv.SortGameGrid(1)">Game (Directory / Zip)@(SortGlyph(1))</span>
                                     @if (Rv.ShowDescriptionCol)
-                                    {<span class="sortable" @onclick="() => Rv.SortGameGrid(2)">Description@SortGlyph(2)</span>}
-                                    <span class="sortable" @onclick="() => Rv.SortGameGrid(3)">Modified@SortGlyph(3)</span>
+                                    {<span class="sortable" @onclick="() => Rv.SortGameGrid(2)">Description@(SortGlyph(2))</span>}
+                                    <span class="sortable" @onclick="() => Rv.SortGameGrid(3)">Modified@(SortGlyph(3))</span>
                                     <span>ROM Status</span>
                                 </div>
                                 <div class="grid-body">
@@ -195,6 +196,8 @@ else
                                     </Virtualize>
                                 </div>
                             </div>
+
+                            <div class="splitter h" data-axis="y" data-target=".game-grid" data-var="--h-gamegrid" title="Drag to resize"></div>
 
                             @* ============ rom grid ============ *@
                             <div class="grid rom-grid">
@@ -233,6 +236,7 @@ else
                         @* ============ artwork side panel ============ *@
                         @if (Rv.Art.Visible)
                         {
+                            <div class="splitter" data-axis="x" data-target=".art-pane" data-var="--w-art" data-invert="1" title="Drag to resize"></div>
                             <div class="art-pane">
                                 <div class="art-tabs">
                                     @if (Rv.Art.HasArt)

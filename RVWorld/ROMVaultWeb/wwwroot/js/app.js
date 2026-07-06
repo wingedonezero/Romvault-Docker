@@ -27,3 +27,44 @@ window.rvCopyText = (text) => {
 
 // open a URL in a new tab (game web-page links)
 window.rvOpenUrl = (url) => { window.open(url, '_blank', 'noopener'); };
+
+// Draggable pane splitters. Sizes stored as CSS vars + localStorage so the
+// layout survives reloads (the web equivalent of screenpos.xml).
+(() => {
+    const KEYS = ['--w-left', '--h-gamegrid', '--w-art'];
+    for (const k of KEYS) {
+        const v = localStorage.getItem('rv' + k);
+        if (v) document.documentElement.style.setProperty(k, v);
+    }
+    let drag = null;
+    document.addEventListener('pointerdown', (e) => {
+        const s = e.target.closest('.splitter');
+        if (!s) return;
+        const target = document.querySelector(s.dataset.target);
+        if (!target) return;
+        const axis = s.dataset.axis;
+        const rect = target.getBoundingClientRect();
+        drag = {
+            el: s,
+            varName: s.dataset.var,
+            axis,
+            invert: s.dataset.invert === '1',
+            start: axis === 'x' ? e.clientX : e.clientY,
+            startVal: axis === 'x' ? rect.width : rect.height,
+        };
+        s.classList.add('dragging');
+        e.preventDefault();
+    });
+    document.addEventListener('pointermove', (e) => {
+        if (!drag) return;
+        let delta = (drag.axis === 'x' ? e.clientX : e.clientY) - drag.start;
+        if (drag.invert) delta = -delta;
+        const val = Math.max(80, drag.startVal + delta) + 'px';
+        document.documentElement.style.setProperty(drag.varName, val);
+        localStorage.setItem('rv' + drag.varName, val);
+    });
+    document.addEventListener('pointerup', () => {
+        if (drag) drag.el.classList.remove('dragging');
+        drag = null;
+    });
+})();
