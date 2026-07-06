@@ -167,7 +167,7 @@ else
                                     @if (Rv.ShowDescriptionCol)
                                     {<span class="sortable" @onclick="() => Rv.SortGameGrid(2)">Description@(SortGlyph(2))<span class="col-resize" data-axis="x" data-var="--gg2" @onclick:stopPropagation></span></span>}
                                     <span class="sortable" @onclick="() => Rv.SortGameGrid(3)">Modified@(SortGlyph(3))<span class="col-resize" data-axis="x" data-var="--gg3" @onclick:stopPropagation></span></span>
-                                    <span>ROM Status</span>
+                                    <span>ROM Status<span class="col-resize" data-axis="x" data-var="--gg4"></span></span>
                                 </div>
                                 <div class="grid-body">
                                     <Virtualize Items="Rv.GameRows" ItemSize="22" Context="row">
@@ -419,7 +419,7 @@ else
     {
         get
         {
-            List<string> cols = new() { "var(--rg-got,44px)", "var(--rg-name,minmax(220px,2fr))" };
+            List<string> cols = new() { "var(--rg-got,44px)", "var(--rg-name,320px)" };
             if (Rv.RomShowMerge) cols.Add("var(--rg-merge,90px)");
             cols.AddRange(new[] { "var(--rg-size,90px)", "var(--rg-crc,110px)", "var(--rg-sha1,130px)", "var(--rg-md5,130px)" });
             if (Rv.RomShowAlt) cols.AddRange(new[] { "var(--rg-asize,70px)", "var(--rg-acrc,110px)", "var(--rg-asha,130px)", "var(--rg-amd5,130px)" });
