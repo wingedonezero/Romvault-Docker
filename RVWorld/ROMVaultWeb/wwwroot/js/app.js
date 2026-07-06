@@ -53,6 +53,7 @@ window.rvOpenUrl = (url) => { window.open(url, '_blank', 'noopener'); };
             startVal: axis === 'x' ? rect.width : rect.height,
         };
         s.classList.add('dragging');
+        document.body.style.userSelect = 'none';
         e.preventDefault();
     });
     document.addEventListener('pointermove', (e) => {
@@ -65,6 +66,7 @@ window.rvOpenUrl = (url) => { window.open(url, '_blank', 'noopener'); };
     });
     document.addEventListener('pointerup', () => {
         if (drag) drag.el.classList.remove('dragging');
+        document.body.style.userSelect = '';
         drag = null;
     });
 })();
