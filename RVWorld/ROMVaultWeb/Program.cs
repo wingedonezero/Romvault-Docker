@@ -19,7 +19,15 @@ public class Program
         Settings.rvSettings = new Settings();
         Settings.rvSettings = Settings.SetDefaults(out string errorReadingSettings);
 
-        var builder = WebApplication.CreateBuilder(args);
+        // CWD is /config (RomVault resolves its files relative to it), so the
+        // web content root must be anchored to the app's own directory or
+        // ASP.NET looks for wwwroot under /config and serves no css/images.
+        var builder = WebApplication.CreateBuilder(new WebApplicationOptions
+        {
+            Args = args,
+            ContentRootPath = AppContext.BaseDirectory,
+            WebRootPath = Path.Combine(AppContext.BaseDirectory, "wwwroot"),
+        });
 
         builder.Services.AddRazorComponents()
             .AddInteractiveServerComponents();
