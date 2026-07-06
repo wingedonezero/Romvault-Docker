@@ -216,14 +216,28 @@
 
     private string _open;
 
-    public void Open(string name)
+    public void Open(string name, string arg = null)
     {
         _open = name;
         switch (name)
         {
             case "settings": LoadSettings(); break;
-            case "dirrules": SelectRule(Settings.rvSettings.DatRules.FirstOrDefault(r => r.DirKey == "RomVault") ?? Settings.rvSettings.DatRules.FirstOrDefault()); break;
-            case "dirmappings": SelectMapping(Settings.rvSettings.DirMappings.FirstOrDefault()); break;
+            case "dirrules":
+                DatRule pre = null;
+                if (!string.IsNullOrEmpty(arg))
+                    pre = Settings.rvSettings.DatRules.FirstOrDefault(r => r.DirKey == arg);
+                SelectRule(pre ?? Settings.rvSettings.DatRules.FirstOrDefault(r => r.DirKey == "RomVault") ?? Settings.rvSettings.DatRules.FirstOrDefault());
+                if (pre == null && !string.IsNullOrEmpty(arg))
+                    _ruleKey = arg;   // creating a new rule for this tree dir
+                break;
+            case "dirmappings":
+                DirMapping mpre = null;
+                if (!string.IsNullOrEmpty(arg))
+                    mpre = Settings.rvSettings.DirMappings.FirstOrDefault(m => m.DirKey == arg);
+                SelectMapping(mpre ?? Settings.rvSettings.DirMappings.FirstOrDefault());
+                if (mpre == null && !string.IsNullOrEmpty(arg))
+                    _mapKey = arg;    // creating a new mapping for this tree dir
+                break;
             case "addtosort": Browse("/roms"); break;
         }
         StateHasChanged();

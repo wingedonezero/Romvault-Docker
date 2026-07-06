@@ -24,3 +24,6 @@ window.rvCopyText = (text) => {
     document.execCommand('copy');
     document.body.removeChild(ta);
 };
+
+// open a URL in a new tab (game web-page links)
+window.rvOpenUrl = (url) => { window.open(url, '_blank', 'noopener'); };

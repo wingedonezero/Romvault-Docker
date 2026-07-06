@@ -17,7 +17,7 @@ namespace ROMVaultWeb.Services;
 // FrmMain - it owns selection, grid models, tree operations and runs the core
 // operations on background ThreadWorkers exactly like the desktop UI.
 // ============================================================================
-public class RvApp
+public partial class RvApp
 {
     // ------------------------------------------------------------------ state
     public bool Ready;                  // DB loaded, UI usable
@@ -229,6 +229,7 @@ public class RvApp
         if (cf == null)
             return;
         GameGridSource = cf;
+        UpdateDatPanel(cf);
         UpdateGameGrid();
     }
 
@@ -236,6 +237,7 @@ public class RvApp
     {
         SelectedGame = game;
         UpdateRomGrid(game);
+        UpdateGamePanel(game);
         Notify();
     }
 
