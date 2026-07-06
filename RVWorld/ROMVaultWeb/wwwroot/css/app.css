@@ -90,17 +90,17 @@ hr { border: none; border-top: 1px solid var(--border); margin: 4px 0; }
 .filter-box button { padding: 2px 8px; }
 
 /* ============================ grids ============================ */
-.grid { display: flex; flex-direction: column; margin: 0 4px 4px 4px; border: 1px solid var(--border); background: var(--bg1); min-height: 0; }
+.grid { display: flex; flex-direction: column; margin: 0 4px 4px 4px; border: 1px solid var(--border); background: var(--bg1); min-height: 0; overflow: auto; }
 .game-grid { flex: 0 0 var(--h-gamegrid, 44%); min-height: 80px; }
 .rom-grid { flex: 1; }
-.grid-head { display: grid; background: var(--bg2); border-bottom: 1px solid var(--border); font-weight: 600; font-size: 12px; user-select: none; }
-.grid-head span { padding: 3px 6px; border-right: 1px solid var(--border); overflow: hidden; white-space: nowrap; }
+.grid-head { display: grid; background: var(--bg2); border-bottom: 1px solid var(--border); font-weight: 600; font-size: 12px; user-select: none; position: sticky; top: 0; z-index: 3; min-width: max-content; }
+.grid-head > span { padding: 3px 6px; border-right: 1px solid var(--border); overflow: hidden; white-space: nowrap; position: relative; }
 .grid-head .sortable { cursor: pointer; }
 .grid-head .sortable:hover { color: var(--accent); }
-.grid-body { flex: 1; overflow-y: auto; overflow-x: hidden; }
-.grid-row { display: grid; font-size: 12px; line-height: 20px; height: 22px; cursor: default; }
+.grid-body { flex: 1; min-width: max-content; }
+.grid-row { display: grid; font-size: 12px; line-height: 20px; height: 22px; cursor: default; min-width: max-content; }
 .grid-row.selected { outline: 2px solid var(--accent); outline-offset: -2px; }
-.grid-row span { padding: 0 6px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.grid-row > span { padding: 0 6px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
 
 .game-cols { grid-template-columns: var(--gg0,90px) var(--gg1,minmax(200px,1.4fr)) var(--gg2,minmax(160px,1.2fr)) var(--gg3,150px) minmax(220px,2fr); }
 .game-cols.no-desc { grid-template-columns: var(--gg0,90px) var(--gg1,minmax(220px,1.6fr)) var(--gg3,150px) minmax(220px,2fr); }
@@ -202,7 +202,6 @@ hr { border: none; border-top: 1px solid var(--border); margin: 4px 0; }
 .splitter:hover, .splitter.dragging { background: var(--accent); }
 .splitter.h { width: auto; height: 5px; cursor: row-resize; margin: 0 4px; }
 
-/* column resize handles in grid headers */
-.grid-head span { position: relative; }
-.col-resize { position: absolute; right: -4px; top: 0; width: 8px; height: 100%; cursor: col-resize; z-index: 5; padding: 0 !important; }
-.col-resize:hover, .col-resize.dragging { background: var(--accent); }
+/* column resize grips: invisible strip on each column's right edge */
+.grid-head > span > .col-resize { position: absolute; right: 0; top: 0; width: 7px; height: 100%; cursor: col-resize; z-index: 5; padding: 0; border: none; background: transparent; }
+.grid-head > span > .col-resize:hover, .grid-head > span > .col-resize.dragging { background: var(--accent); }
