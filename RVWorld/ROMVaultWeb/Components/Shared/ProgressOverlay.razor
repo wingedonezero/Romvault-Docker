@@ -1,0 +1,51 @@
+@* The FrmProgressWindow equivalent: title, up to 3 labels, 2 progress bars,
+   expandable error/time-log grid, cancel/close. *@
+
+@if (Model.Visible)
+{
+    <div class="overlay">
+        <div class="dialog progress-dlg @(Model.ErrorOpen ? "tall" : "")">
+            <div class="dlg-title">@Model.Title - @Percent% complete</div>
+            <div class="dlg-body">
+                <div class="prog-label">@Model.Label1</div>
+                <progress max="@Model.Bar1Max" value="@Model.Bar1"></progress>
+                @if (Model.Bar2Visible)
+                {
+                    <div class="prog-label">@Model.Label2</div>
+                    <progress max="@Model.Bar2Max" value="@Model.Bar2"></progress>
+                    <div class="prog-label small">@((int)Model.Bar2)/@((int)Model.Bar2Max)</div>
+                }
+                @if (!string.IsNullOrEmpty(Model.Label3))
+                {
+                    <div class="prog-label">@Model.Label3</div>
+                }
+                @if (Model.ErrorOpen)
+                {
+                    <div class="error-grid">
+                        @foreach (var row in Model.ErrorRowsSnapshot())
+                        {
+                            <div class="error-row @(row.IsError ? "err" : "")">
+                                <span>@row.A</span><span>@row.B</span>
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+            <div class="dlg-buttons">
+                @if (Model.Finished)
+                {
+                    <button @onclick="Model.Close">Close</button>
+                }
+                else if (!Model.HideCancel)
+                {
+                    <button disabled="@Model.Cancelled" @onclick="Model.Cancel">@(Model.Cancelled ? "Cancelling" : "Cancel")</button>
+                }
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter] public ProgressModel Model { get; set; }
+    private int Percent => Model.Bar1Max > 0 ? (int)(Model.Bar1 * 100 / Model.Bar1Max) : 0;
+}

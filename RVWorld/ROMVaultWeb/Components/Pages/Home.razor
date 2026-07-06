@@ -1,0 +1,372 @@
+@page "/"
+@inject RvApp Rv
+@inject IJSRuntime JS
+@implements IDisposable
+@using RomVaultCore.Scanner
+
+@if (!Rv.Ready)
+{
+    <div class="splash">
+        <img src="img/logo.png" alt="RomVault" />
+        <div class="splash-text">@Rv.InitText</div>
+        <progress max="@Rv.InitMax" value="@Rv.InitPercent"></progress>
+        <div class="splash-ver">RomVault @Program.strVersion</div>
+    </div>
+}
+else
+{
+    <div class="rv-root" @onclick="CloseContextMenus">
+
+        @* ======================= menu bar ======================= *@
+        <div class="menubar">
+            <div class="menu">
+                <span>Update DATs</span>
+                <div class="menu-drop">
+                    <a @onclick="() => Rv.RunUpdateDats(false)">Update New DATs <kbd>F5</kbd></a>
+                    <a @onclick="() => Rv.RunUpdateDats(true)">Refresh All DATs <kbd>Shift+F5</kbd></a>
+                </div>
+            </div>
+            <div class="menu">
+                <span>Scan ROMs</span>
+                <div class="menu-drop">
+                    <a @onclick="() => Rv.RunScan(EScanLevel.Level1)">Scan ticked new ROMs headers only <kbd>Shift+F6</kbd></a>
+                    <a @onclick="() => Rv.RunScan(EScanLevel.Level2)">Scan ticked new ROMs with full hash check <kbd>F6</kbd></a>
+                    <a @onclick="() => Rv.RunScan(EScanLevel.Level3)">ReScan All ticked ROMs with full hash check <kbd>Ctrl+F6</kbd></a>
+                </div>
+            </div>
+            <div class="menu"><span @onclick="() => Rv.RunFindFixes()">Find Fixes</span></div>
+            <div class="menu"><span @onclick="() => Rv.RunFix()">Fix ROMs</span></div>
+            <div class="menu">
+                <span>Reports</span>
+                <div class="menu-drop">
+                    <a @onclick="() => Rv.MakeFixDat(null, true)">Fix Dat Report <kbd>F9</kbd></a>
+                    <a @onclick="() => Rv.MakeFixDat(null, false)">Full Report <kbd>Shift+F9</kbd></a>
+                </div>
+            </div>
+            <div class="menu">
+                <span>Settings</span>
+                <div class="menu-drop">
+                    <a @onclick='() => OpenDialog("settings")'>RomVault Settings <kbd>F10</kbd></a>
+                    <a @onclick='() => OpenDialog("dirrules")'>Directory Dat Rules <kbd>Shift+F10</kbd></a>
+                    <a @onclick='() => OpenDialog("dirmappings")'>Directory Mappings <kbd>Ctrl+F10</kbd></a>
+                </div>
+            </div>
+            <div class="menu"><span @onclick='() => OpenDialog("addtosort")'>Add ToSort</span></div>
+            <div class="menu">
+                <span>Help</span>
+                <div class="menu-drop">
+                    <a href="https://wiki.romvault.com/" target="_blank">Visit Help Wiki</a>
+                    <a @onclick='() => OpenDialog("colorkey")'>Color Key <kbd>F1</kbd></a>
+                    <a href="https://wiki.romvault.com/doku.php?id=whats_new" target="_blank">Whats New</a>
+                    <a @onclick='() => OpenDialog("about")'>About RomVault <kbd>F12</kbd></a>
+                </div>
+            </div>
+            <div class="menubar-right">RomVault @Program.strVersion</div>
+        </div>
+
+        <div class="rv-main">
+            @* ======================= toolbar ======================= *@
+            <div class="toolbar">
+                <button title="Left Click: Dat Update&#10;Shift Left Click: Full Dat Rescan" disabled="@Rv.Working"
+                        @onclick="e => Rv.RunUpdateDats(e.ShiftKey)">
+                    <img src="img/btnUpdateDats_@(Rv.Working ? "Disabled" : "Enabled").png" /></button>
+                <button title="Scan ROMs (full hash check)" disabled="@Rv.Working"
+                        @onclick="() => Rv.RunScan(EScanLevel.Level2)">
+                    <img src="img/btnScanRoms_@(Rv.Working ? "Disabled" : "Enabled").png" /></button>
+                <button title="Find Fixes" disabled="@Rv.Working"
+                        @onclick="() => Rv.RunFindFixes()">
+                    <img src="img/btnFindFixes_@(Rv.Working ? "Disabled" : "Enabled").png" /></button>
+                <button title="Left Click: Fix Files&#10;Right Click: Scan / Find Fix / Fix" disabled="@Rv.Working"
+                        @onclick="() => Rv.RunFix()"
+                        @oncontextmenu="() => Rv.RunAutoScanFix()" @oncontextmenu:preventDefault>
+                    <img src="img/btnFixFiles_@(Rv.Working ? "Disabled" : "Enabled").png" /></button>
+                <button title="Left Click: Fix Dat (Missing + MIA)&#10;Right Click: Full Fix Dat" disabled="@Rv.Working"
+                        @onclick="() => Rv.MakeFixDat(null, true)"
+                        @oncontextmenu="() => Rv.MakeFixDat(null, false)" @oncontextmenu:preventDefault>
+                    <img src="img/btnReport_@(Rv.Working ? "Disabled" : "Enabled").png" /></button>
+            </div>
+
+            <div class="rv-content">
+                @* =================== left: dat info + tree =================== *@
+                <div class="left-pane">
+                    <fieldset class="info-box">
+                        <legend>Dat Info :</legend>
+                        <div class="info-grid">
+                            <label>Name :</label><input readonly value="@DatInfo(RvDat.DatData.DatName)" class="wide" />
+                            <label>Description :</label><input readonly value="@DatInfo(RvDat.DatData.Description)" class="wide" />
+                            <label>Category :</label><input readonly value="@DatInfo(RvDat.DatData.Category)" />
+                            <label>Version :</label><input readonly value="@DatInfo(RvDat.DatData.Version)" />
+                            <label>Author :</label><input readonly value="@DatInfo(RvDat.DatData.Author)" />
+                            <label>Date :</label><input readonly value="@DatInfo(RvDat.DatData.Date)" />
+                            <label>ROM Path :</label><input readonly value="@(Rv.Selected?.FullName ?? "")" class="wide" />
+                            <label>ROMs Got :</label><input readonly value="@(Rv.Selected?.DirStatus.CountCorrect().ToString("N0") ?? "")" />
+                            <label>ROMs Missing :</label><input readonly value="@(Rv.Selected?.DirStatus.CountMissing().ToString("N0") ?? "")" />
+                        </div>
+                    </fieldset>
+                    <div class="tree-pane">
+                        @foreach (RvFile child in RvApp.TreeChildren(DB.DirRoot))
+                        {
+                            <RvTreeNode Node="child" Rv="Rv" OnContextMenu="ShowTreeMenu" />
+                        }
+                    </div>
+                </div>
+
+                @* =================== right: game info, grids =================== *@
+                <div class="right-pane">
+                    <div class="right-top">
+                        <fieldset class="info-box game-info">
+                            <legend>Game Info :</legend>
+                            <pre class="game-info-text">@Rv.GameInfoText(Rv.SelectedGame)</pre>
+                        </fieldset>
+                        <div class="filters">
+                            <label><input type="checkbox" checked="@S.chkBoxShowComplete" @onchange='e => Rv.SaveShowCheckbox("complete", (bool)e.Value)' /> Show Complete</label>
+                            <label><input type="checkbox" checked="@S.chkBoxShowPartial" @onchange='e => Rv.SaveShowCheckbox("partial", (bool)e.Value)' /> Show Partial</label>
+                            <label><input type="checkbox" checked="@S.chkBoxShowEmpty" @onchange='e => Rv.SaveShowCheckbox("empty", (bool)e.Value)' /> Show Empty</label>
+                            <label><input type="checkbox" checked="@S.chkBoxShowFixes" @onchange='e => Rv.SaveShowCheckbox("fixes", (bool)e.Value)' /> Show Fixes</label>
+                            <label><input type="checkbox" checked="@S.chkBoxShowMIA" @onchange='e => Rv.SaveShowCheckbox("mia", (bool)e.Value)' /> Show MIA</label>
+                            <label><input type="checkbox" checked="@S.chkBoxShowMerged" @onchange='e => Rv.SaveShowCheckbox("merged", (bool)e.Value)' /> Show Merged / Deduped</label>
+                            <span class="filter-box">
+                                <input placeholder="Filter..." value="@Rv.FilterText" @oninput="OnFilterInput" />
+                                <button @onclick="ClearFilter">X</button>
+                            </span>
+                        </div>
+                    </div>
+
+                    @* ============ game grid ============ *@
+                    <div class="grid game-grid" @oncontextmenu:preventDefault>
+                        <div class="grid-head game-cols@(Rv.ShowDescriptionCol ? "" : " no-desc")">
+                            <span>Type</span>
+                            <span class="sortable" @onclick="() => Rv.SortGameGrid(1)">Game (Directory / Zip)@SortGlyph(1)</span>
+                            @if (Rv.ShowDescriptionCol)
+                            {<span class="sortable" @onclick="() => Rv.SortGameGrid(2)">Description@SortGlyph(2)</span>}
+                            <span class="sortable" @onclick="() => Rv.SortGameGrid(3)">Modified@SortGlyph(3)</span>
+                            <span>ROM Status</span>
+                        </div>
+                        <div class="grid-body">
+                            <Virtualize Items="Rv.GameRows" ItemSize="22" Context="row">
+                                <div class="grid-row game-cols@(Rv.ShowDescriptionCol ? "" : " no-desc") @(row.File == Rv.SelectedGame ? "selected" : "")"
+                                     style="background:@StatusColors.BackColor(row.StatusKey, Dark);color:@StatusColors.ForeColor(row.StatusKey, Dark)"
+                                     @onclick="() => Rv.SelectGame(row.File)"
+                                     @ondblclick="() => Rv.GameDoubleClick(row)"
+                                     @oncontextmenu="e => ShowGameMenu(row, e)" @oncontextmenu:preventDefault>
+                                    <span class="cell-type">
+                                        @foreach (string icon in row.TypeIcons)
+                                        {<img src="img/@(icon).png" />}
+                                    </span>
+                                    <span class="cell-text">@row.Name</span>
+                                    @if (Rv.ShowDescriptionCol)
+                                    {<span class="cell-text">@row.Description</span>}
+                                    <span class="cell-text">@row.DateTime</span>
+                                    <span class="cell-chips">
+                                        @foreach (var chip in row.StatusChips)
+                                        {
+                                            <span class="chip" style="background:@StatusColors.ChipColor(chip.Status)" title="@chip.Status">
+                                                <img src="img/G_@(chip.Status).png" />@chip.Count
+                                            </span>
+                                        }
+                                    </span>
+                                </div>
+                            </Virtualize>
+                        </div>
+                    </div>
+
+                    @* ============ rom grid ============ *@
+                    <div class="grid rom-grid">
+                        <div class="grid-head rom-cols" style="@RomColsStyle">
+                            <span>Got</span><span>ROM (File)</span>
+                            @if (Rv.RomShowMerge){<span>Merge</span>}
+                            <span>Size</span><span>CRC32</span><span>SHA1</span><span>MD5</span>
+                            @if (Rv.RomShowAlt){<span>AltSize</span><span>AltCRC32</span><span>AltSHA1</span><span>AltMD5</span>}
+                            @if (Rv.RomShowStatus){<span>Status</span>}
+                            @if (Rv.RomShowDate){<span>Modified</span>}
+                            <span>Zip</span><span>Dupes</span>
+                        </div>
+                        <div class="grid-body">
+                            <Virtualize Items="Rv.RomRows" ItemSize="22" Context="row">
+                                <div class="grid-row rom-cols" style="@RomColsStyle;background:@StatusColors.BackColor(row.StatusKey, Dark);color:@StatusColors.ForeColor(row.StatusKey, Dark)">
+                                    <span class="cell-type"><img src="img/@(row.GotIcon).png" onerror="this.style.display='none'" /></span>
+                                    <span class="cell-text" title="@row.Name">@row.Name</span>
+                                    @if (Rv.RomShowMerge){<span class="cell-text">@row.Merge</span>}
+                                    <span class="cell-text num">@row.Size</span>
+                                    <span class="cell-text mono">@row.CRC32</span>
+                                    <span class="cell-text mono">@row.SHA1</span>
+                                    <span class="cell-text mono">@row.MD5</span>
+                                    @if (Rv.RomShowAlt){<span class="cell-text num">@row.AltSize</span><span class="cell-text mono">@row.AltCRC32</span><span class="cell-text mono">@row.AltSHA1</span><span class="cell-text mono">@row.AltMD5</span>}
+                                    @if (Rv.RomShowStatus){<span class="cell-text">@row.Status</span>}
+                                    @if (Rv.RomShowDate){<span class="cell-text">@row.DateModFile</span>}
+                                    <span class="cell-text num">@row.ZipIndex</span>
+                                    <span class="cell-text num">@row.DupeCount</span>
+                                </div>
+                            </Virtualize>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        @* =================== context menus =================== *@
+        @if (_treeMenuNode != null)
+        {
+            <div class="ctx-menu" style="left:@(_menuX)px;top:@(_menuY)px" @onclick:stopPropagation>
+                <a @onclick="() => TreeMenuScan(EScanLevel.Level2)">Scan</a>
+                <a @onclick="() => TreeMenuScan(EScanLevel.Level1)">Scan Quick (Headers Only)</a>
+                <a @onclick="() => TreeMenuScan(EScanLevel.Level3)">Scan Full (Complete Re-Scan)</a>
+                <hr />
+                <a @onclick="TreeMenuFixDat">Save fix DATs</a>
+            </div>
+        }
+        @if (_gameMenuRow != null)
+        {
+            <div class="ctx-menu" style="left:@(_menuX)px;top:@(_menuY)px" @onclick:stopPropagation>
+                <a @onclick="CopyGameInfo">Copy Name / Info</a>
+            </div>
+        }
+
+        <ProgressOverlay Model="Rv.Progress" />
+        <FixProgressOverlay Model="Rv.FixProgress" />
+        <MessageOverlay Rv="Rv" />
+        <DialogHost Rv="Rv" @ref="_dialogs" />
+    </div>
+}
+
+@code {
+    private Settings S => Settings.rvSettings;
+    private bool Dark => S?.Darkness == true;
+    private DialogHost _dialogs;
+
+    private RvFile _treeMenuNode;
+    private GameRow _gameMenuRow;
+    private double _menuX, _menuY;
+    private System.Timers.Timer _refreshTimer;
+
+    protected override void OnInitialized()
+    {
+        Rv.OnChange += Refresh;
+        // 8-second refresh while an operation runs (the desktop timer1)
+        _refreshTimer = new System.Timers.Timer(8000);
+        _refreshTimer.Elapsed += (s, e) => { if (Rv.Working) { Rv.DatSetSelected(Rv.Selected); Refresh(); } };
+        _refreshTimer.Start();
+    }
+
+    private void Refresh() => InvokeAsync(StateHasChanged);
+
+    public void Dispose()
+    {
+        Rv.OnChange -= Refresh;
+        _refreshTimer?.Dispose();
+    }
+
+    private string DatInfo(RvDat.DatData field)
+    {
+        RvFile s = Rv.Selected;
+        if (s == null) return "";
+        RvDat dat = s.Dat ?? (s.DirDatCount == 1 ? s.DirDat(0) : null);
+        return dat?.GetData(field) ?? "";
+    }
+
+    private MarkupString SortGlyph(int col) =>
+        (MarkupString)(Rv.GameSortIndex == col ? (Rv.GameSortAscending ? "&nbsp;&#9650;" : "&nbsp;&#9660;") : "");
+
+    private string RomColsStyle
+    {
+        get
+        {
+            List<string> cols = new() { "44px", "minmax(220px,2fr)" };
+            if (Rv.RomShowMerge) cols.Add("90px");
+            cols.AddRange(new[] { "90px", "110px", "130px", "130px" });
+            if (Rv.RomShowAlt) cols.AddRange(new[] { "70px", "110px", "130px", "130px" });
+            if (Rv.RomShowStatus) cols.Add("110px");
+            if (Rv.RomShowDate) cols.Add("150px");
+            cols.AddRange(new[] { "50px", "56px" });
+            return "grid-template-columns:" + string.Join(" ", cols);
+        }
+    }
+
+    private void OnFilterInput(ChangeEventArgs e)
+    {
+        Rv.FilterText = e.Value?.ToString() ?? "";
+        Rv.UpdateGameGrid();
+    }
+
+    private void ClearFilter()
+    {
+        Rv.FilterText = "";
+        Rv.UpdateGameGrid();
+    }
+
+    // ------------------------- context menus -------------------------
+    private void ShowTreeMenu((RvFile Node, double X, double Y) args)
+    {
+        _gameMenuRow = null;
+        _treeMenuNode = args.Node;
+        _menuX = args.X; _menuY = args.Y;
+    }
+
+    private void ShowGameMenu(GameRow row, MouseEventArgs e)
+    {
+        _treeMenuNode = null;
+        _gameMenuRow = row;
+        _menuX = e.ClientX; _menuY = e.ClientY;
+    }
+
+    private void CloseContextMenus()
+    {
+        _treeMenuNode = null;
+        _gameMenuRow = null;
+    }
+
+    private async Task TreeMenuScan(EScanLevel level)
+    {
+        RvFile node = _treeMenuNode;
+        CloseContextMenus();
+        await Rv.RunScan(level, node);
+    }
+
+    private void TreeMenuFixDat()
+    {
+        RvFile node = _treeMenuNode;
+        CloseContextMenus();
+        Rv.MakeFixDat(node, true);
+    }
+
+    private async Task CopyGameInfo()
+    {
+        GameRow row = _gameMenuRow;
+        CloseContextMenus();
+        if (row == null) return;
+        string text = $"Name : {row.Name}\nDesc : {row.Description}\n";
+        await JS.InvokeVoidAsync("rvCopyText", text);
+    }
+
+    private void OpenDialog(string name) => _dialogs?.Open(name);
+
+    // ------------------------- keyboard -------------------------
+    [JSInvokable]
+    public async Task OnHotKey(string key, bool shift, bool ctrl)
+    {
+        if (Rv.Working && key != "F1" && key != "F12") return;
+        switch (key)
+        {
+            case "F1": OpenDialog("colorkey"); break;
+            case "F5": await Rv.RunUpdateDats(shift); break;
+            case "F6":
+                await Rv.RunScan(ctrl ? EScanLevel.Level3 : shift ? EScanLevel.Level1 : EScanLevel.Level2);
+                break;
+            case "F7": await Rv.RunFindFixes(); break;
+            case "F8": await Rv.RunFix(); break;
+            case "F9": Rv.MakeFixDat(null, !shift); break;
+            case "F10":
+                OpenDialog(ctrl ? "dirmappings" : shift ? "dirrules" : "settings");
+                break;
+            case "F11": OpenDialog("addtosort"); break;
+            case "F12": OpenDialog("about"); break;
+        }
+        Refresh();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+            await JS.InvokeVoidAsync("rvHotkeys", DotNetObjectReference.Create(this));
+    }
+}

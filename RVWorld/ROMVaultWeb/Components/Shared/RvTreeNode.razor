@@ -1,0 +1,48 @@
+@* One node of the RomVault tree, recursive. Mirrors RvTreeControl rendering:
+   expand box, tri-state checkbox, status icon, label + counts. *@
+
+<div class="tree-row @(IsSelected ? "selected" : "")"
+     @onclick="() => Rv.TreeSelect(Node)"
+     @oncontextmenu="OnContext" @oncontextmenu:preventDefault>
+    @if (RvApp.TreeHasChildren(Node))
+    {
+        <img class="tree-expand" src="img/@(Node.Tree.TreeExpanded ? "ExpandBoxMinus" : "ExpandBoxPlus").png"
+             @onclick="ToggleExpand" @onclick:stopPropagation
+             @oncontextmenu="RightExpand" @oncontextmenu:preventDefault @oncontextmenu:stopPropagation />
+    }
+    else
+    {
+        <span class="tree-expand-spacer"></span>
+    }
+    <img class="tree-check" src="img/@(RvApp.TreeCheckIcon(Node)).png"
+         @onclick="e => Rv.TreeToggleChecked(Node, e.ShiftKey)" @onclick:stopPropagation />
+    <img class="tree-icon" src="img/@(RvApp.TreeIcon(Node)).png" />
+    <span class="tree-label">@RvApp.TreeLabel(Node)</span>
+    <span class="tree-sub">@RvApp.TreeSubLabel(Node)</span>
+</div>
+
+@if (Node.Tree.TreeExpanded)
+{
+    <div class="tree-children">
+        @foreach (RvFile child in RvApp.TreeChildren(Node))
+        {
+            <RvTreeNode Node="child" Rv="Rv" OnContextMenu="OnContextMenu" />
+        }
+    </div>
+}
+
+@code {
+    [Parameter] public RvFile Node { get; set; }
+    [Parameter] public RvApp Rv { get; set; }
+    [Parameter] public EventCallback<(RvFile Node, double X, double Y)> OnContextMenu { get; set; }
+
+    private bool IsSelected => Rv.Selected != null && Node.TreeFullName == Rv.Selected.TreeFullName;
+
+    private void ToggleExpand() => Rv.SetExpanded(Node, false);
+    private void RightExpand() => Rv.SetExpanded(Node, true);
+
+    private async Task OnContext(MouseEventArgs e)
+    {
+        await OnContextMenu.InvokeAsync((Node, e.ClientX, e.ClientY));
+    }
+}

@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>ROMVaultWeb</RootNamespace>
+    <AssemblyName>ROMVaultWeb</AssemblyName>
+    <AssemblyVersion>3.7.5.0</AssemblyVersion>
+    <Version>3.7.5</Version>
+    <InvariantGlobalization>false</InvariantGlobalization>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\RomVaultCore\RomVaultCore.csproj" />
+    <ProjectReference Include="..\RVUtils\RVUtils.csproj" />
+    <ProjectReference Include="..\Compress\Compress.csproj" />
+    <ProjectReference Include="..\DATReader\DATReader.csproj" />
+    <ProjectReference Include="..\RVIO\RVIO.csproj" />
+    <ProjectReference Include="..\SharedEnum\SharedEnum.csproj" />
+    <ProjectReference Include="..\SortMethods\SortMethods.csproj" />
+    <ProjectReference Include="..\ByteSortedList\StorageList.csproj" />
+    <ProjectReference Include="..\CodePage\CodePage.csproj" />
+  </ItemGroup>
+
+</Project>
