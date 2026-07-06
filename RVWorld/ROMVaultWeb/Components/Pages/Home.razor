@@ -180,9 +180,9 @@ else
                                                 @foreach (string icon in row.TypeIcons)
                                                 {<img src="img/@(icon).png" />}
                                             </span>
-                                            <span class="cell-text">@row.Name</span>
+                                            <span class="cell-text" title="@row.Name">@row.Name</span>
                                             @if (Rv.ShowDescriptionCol)
-                                            {<span class="cell-text">@row.Description</span>}
+                                            {<span class="cell-text" title="@row.Description">@row.Description</span>}
                                             <span class="cell-text">@row.DateTime</span>
                                             <span class="cell-chips">
                                                 @foreach (var chip in row.StatusChips)
@@ -203,7 +203,7 @@ else
                             <div class="grid rom-grid">
                                 <div class="grid-head rom-cols" style="@RomColsStyle">
                                     <span>Got<span class="col-resize" data-axis="x" data-var="--rg-got"></span></span>
-                                    <span>ROM (File)</span>
+                                    <span>ROM (File)<span class="col-resize" data-axis="x" data-var="--rg-name"></span></span>
                                     @if (Rv.RomShowMerge){<span>Merge<span class="col-resize" data-axis="x" data-var="--rg-merge"></span></span>}
                                     <span>Size<span class="col-resize" data-axis="x" data-var="--rg-size"></span></span>
                                     <span>CRC32<span class="col-resize" data-axis="x" data-var="--rg-crc"></span></span>
@@ -419,7 +419,7 @@ else
     {
         get
         {
-            List<string> cols = new() { "var(--rg-got,44px)", "minmax(220px,2fr)" };
+            List<string> cols = new() { "var(--rg-got,44px)", "var(--rg-name,minmax(220px,2fr))" };
             if (Rv.RomShowMerge) cols.Add("var(--rg-merge,90px)");
             cols.AddRange(new[] { "var(--rg-size,90px)", "var(--rg-crc,110px)", "var(--rg-sha1,130px)", "var(--rg-md5,130px)" });
             if (Rv.RomShowAlt) cols.AddRange(new[] { "var(--rg-asize,70px)", "var(--rg-acrc,110px)", "var(--rg-asha,130px)", "var(--rg-amd5,130px)" });
